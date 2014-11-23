@@ -1,0 +1,5 @@
+﻿@using control_notas_cit.Helpers
+
+<li class="@Html.IsSelected(action: "Index")"><a href="@Url.Action("Index")"><i class="icon-book"></i><span class="hidden-tablet"> Inicio</span></a></li>
+<li class="@Html.IsSelected(action: "ListaProfesores")"><a href="@Url.Action("ListaProfesores")"><i class="icon-user"></i><span class="hidden-tablet"> Profesores</span></a></li>
+<li class="@Html.IsSelected(action: "AgregarAdministrador")"><a href="@Url.Action("AgregarAdministrador")"><i class="icon-bar-chart"></i><span class="hidden-tablet"> Agregar Administrador</span></a></li>

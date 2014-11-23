@@ -1,0 +1,84 @@
+﻿@model control_notas_cit.Models.ViewModels.AsistenciaSemanaViewModel
+@using control_notas_cit.Models.Entidades
+@{
+    ViewBag.Title = "Asistencia";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section styles{
+    <link href="@Url.Content("~/Content/css/jquery-labelauty.css")" rel="stylesheet" type="text/css" />
+
+    <style>
+        .divisor {
+            display:inline-block;
+        }
+    </style>
+
+}
+
+@section sidebar{
+    @Html.Partial("_SidebarCoordinadorPartialView")
+}
+
+<div class="box span12">
+    <div class="box-header" data-original-title="">
+        <h2><i class="halflings-icon edit"></i><span class="break"></span> Asistencia</h2>
+    </div>
+    <div class="box-content">
+        <fieldset>
+            @using (Html.BeginForm("AsistenciaSemana", "Coordinador", FormMethod.Post, new { @class = "form-horizontal" }))
+            {
+                <div class="container-fluid">
+                    @Html.ValidationSummary(true)
+                </div>
+
+                <div class="container-fluid" style="margin-bottom:10px;">
+                    <h2>Indica los alumnos que asistieron esta semana</h2>
+                </div>
+                
+                <div class="container-fluid">
+                    @for (int x = 0; x < Model.Alumnos.Count; x++)
+                    {
+                        if(x == 0)
+                        {
+                            @Html.Raw("<div class='row-fluid'>")                        
+                        }
+                        else if(x > 0 && x % 4 == 0)
+                        {
+                            @Html.Raw("</div><div class='row-fluid'>")
+                        }
+                    
+                        <div class="span3">
+                            <div class="" id="checkerfucker" style="">
+                                <input type="checkbox" name="ID_Alumnos" value="@Model.Alumnos[x].AlumnoID" data-labelauty="@Model.Alumnos[x].Nombre @Model.Alumnos[x].Apellido" />
+                            </div>
+                        </div>
+                    
+                        if(x == (Model.Alumnos.Count - 1))
+                        {
+                            @Html.Raw("</div>");
+                        }
+                    }
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Aceptar</button>
+                    @Html.ActionLink("Cancelar", "Index", null, new { @class = "btn" })
+                </div>
+            }
+        </fieldset>
+    </div>
+</div>
+
+@section scripts{
+    <script type="text/javascript" src="@Url.Content("~/Content/js/jquery-labelauty.js")"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(":checkbox").labelauty();
+
+            $("#checkerfucker>div.checker").removeClass("checker").addClass("divisor");
+            $(".labelauty-unchecked").css('width', 'inherit');
+        });
+    </script>
+}

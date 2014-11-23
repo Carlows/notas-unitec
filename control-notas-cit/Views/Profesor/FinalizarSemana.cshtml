@@ -1,0 +1,67 @@
+﻿@model control_notas_cit.Models.ViewModels.FinalizarSemanaViewModel
+@using control_notas_cit.Helpers
+@using control_notas_cit.Models.Entidades
+@{
+    ViewBag.Title = "Finalizar Semana";
+    ViewBag.Seccion = "Profesor";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section sidebar{
+    @Html.Partial("_SidebarProfesorPartialView")
+}
+
+<div class="row-fluid">
+    <div class="box span6">
+        <div class="box-header">
+            <h2>Confirmar</h2>
+        </div>
+        <div class="box-content">
+            <fieldset>
+                @using (Html.BeginForm("FinalizarSemana", "Profesor", new { id_semana = Model.Semana.SemanaID }, FormMethod.Post, new { @class = "form-horizontal" }))
+                {                    
+                    <h3>Estás seguro?</h3>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-danger">Finalizar</button>
+                        @Html.ActionLink("Cancelar", "Index", null, new { @class = "btn" })
+                    </div>
+                }
+            </fieldset>
+        </div>
+    </div> 
+</div>
+
+<h1 style="margin-bottom:50px;">Minutas pendientes por aprobación esta semana</h1>
+
+@if (Model.MinutasPorAprobar.Count <= 0)
+{
+    <div class="alert alert-info">
+        <h2>No hay minutas pendientes esta semana.</h2>
+    </div>
+}
+else
+{
+    <div class="row-fluid">
+        @{
+    int counter = 0;
+
+    foreach (Minuta m in Model.MinutasPorAprobar)
+    {
+
+        @Html.GridBoxesOpen(counter)
+
+            <div class="box span6">
+                @Html.Partial("_MinutaPartialView", m, new ViewDataDictionary { { "Semana", Model.Semana.NumeroSemana }, { "IsLastWeek", Model.Semana.Calendario.IsLastWeek } })
+            </div>
+
+            @Html.GridBoxesClose(counter, Model.MinutasPorAprobar.Count)
+
+        counter++;
+    }
+
+        }
+    </div>
+}
+
+

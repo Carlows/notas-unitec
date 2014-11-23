@@ -1,0 +1,71 @@
+﻿@model IList<control_notas_cit.Models.ViewModels.AlumnoNotaViewModel>
+@using control_notas_cit.Models.ViewModels
+@{
+    ViewBag.Title = "Notas";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section sidebar{
+    @Html.Partial("_SidebarProfesorPartialView")
+}
+
+
+<div class="box span12">
+    <div class="box-header" data-original-title="">
+        <h2><i class="halflings-icon list"></i><span class="break"></span> Lista de notas</h2>
+    </div>
+    <div class="box-content">
+        <table class="table table-striped" id="alumnos" width="100">
+            <thead>
+                <tr>
+                    <th colspan="2" style="text-align:center;">Datos</th>
+                    <th colspan="12" style="text-align:center;">Notas</th>
+                </tr>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Asistencia</th>
+                    <th>Minutas</th>
+                    <th>Evaluacion Final</th>
+                    <th>Final</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if(Model.Count > 0)
+                {
+                    foreach(AlumnoNotaViewModel alumno in Model)
+                    {
+                        <tr>
+                            <td>@alumno.Nombre</td>
+                            <td>@alumno.Apellido</td>
+                            <td>@alumno.Nota.Nota_Asistencia</td>
+                            <td>@alumno.Nota.Nota_Minutas</td>
+                            <td>@alumno.Nota.Nota_EvaluacionFinal</td>
+                            <td>@alumno.Nota.Nota_Final</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#alumnos').dataTable({
+                "sScrollX": "100%",
+                "bPaginate": false,
+                "bInfo": false,
+                "oLanguage": {
+                    "sSearch": "Buscar alumno:  "
+                },
+                "bAutoWidth": false
+            });
+        });
+    </script>
+}
+
+
+
+

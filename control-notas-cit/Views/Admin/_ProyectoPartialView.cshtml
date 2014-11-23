@@ -1,0 +1,43 @@
+﻿@model control_notas_cit.Models.Entidades.Proyecto
+@using control_notas_cit.Helpers
+<div class="box-header">
+    <h2>@Html.TruncateText(@Model.Nombre, 50)</h2>       
+</div>
+
+@{
+    var calendario = Model.Calendarios.Where(c => c.CalendarioID == Model.CalendarioActualID).SingleOrDefault();
+    bool calendarioFinalizado;
+    if(calendario == null)
+    {
+        calendarioFinalizado = false;
+    }
+    else
+    {
+        if(calendario.Finalizado == true)
+        {
+            calendarioFinalizado = true;
+        }
+        else
+        {
+            calendarioFinalizado = false;
+        }
+    }
+}
+
+<div class="box-content">
+    <h3>@Model.Nombre</h3>
+
+    <div class="container-fluid">
+        <pre>@Model.Descripcion</pre>
+    </div>
+
+    <div class="clearfix">
+        @Html.ActionLink("Editar", "EditarProyecto", "Admin", new { id = @Model.ProyectoID }, new { @class = "btn btn-primary pull-right" })
+        @Html.ActionLink("Celulas", "Celulas", "Admin", new { id = @Model.ProyectoID }, new { @class = "btn btn-primary pull-right", style = "margin-right:8px;" })
+        @if(calendarioFinalizado == true)
+        { 
+            @Html.ActionLink("Exportar Notas CSV", "ExportarNotasCSV", "Admin", new { id_proyecto = @Model.ProyectoID }, new { @class = "btn btn-primary pull-right", style = "margin-right:8px;" })
+            @Html.ActionLink("Exportar Notas Excel", "ExportarNotasExcel", "Admin", new { id_proyecto = @Model.ProyectoID }, new { @class = "btn btn-primary pull-right", style = "margin-right:8px;" })
+        }
+    </div>
+</div>

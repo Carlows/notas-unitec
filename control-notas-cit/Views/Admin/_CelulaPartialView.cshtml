@@ -1,0 +1,14 @@
+﻿@model control_notas_cit.Models.Entidades.Celula
+@using control_notas_cit.Helpers
+<div class="box-header">
+    <h2>@Html.TruncateText(@Model.Nombre, 50)</h2>
+
+</div>
+
+<div class="box-content">
+    <h3>@Model.Nombre</h3>
+
+    <div class="container-fluid">
+        <pre>@Model.Descripcion</pre>
+    </div>
+</div>

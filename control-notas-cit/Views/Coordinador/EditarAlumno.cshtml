@@ -1,0 +1,81 @@
+﻿@model control_notas_cit.Models.ViewModels.AlumnoViewModel
+
+@{
+    ViewBag.Title = "Editar Alumno";
+    ViewBag.Seccion = "Coordinador";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section sidebar{
+    @Html.Partial("_SidebarCoordinadorPartialView")
+}
+
+<div class="box span8">
+    <div class="box-header" data-original-title="">
+        <h2><i class="halflings-icon edit"></i><span class="break"></span> Editar alumno.</h2>
+    </div>
+    <div class="box-content">
+        <fieldset>
+            @using (Html.BeginForm("EditarAlumno", "Coordinador", FormMethod.Post, new { @class = "form-horizontal" }))
+            {
+                @Html.HiddenFor(model => model.Id)
+
+                <div class="container-fluid">
+                    @Html.ValidationSummary(true)
+                </div>
+                <div class="control-group">
+                    @Html.LabelFor(model => model.Nombre, new { @class = "control-label" })
+                    <div class="controls">
+                        @Html.TextBoxFor(model => model.Nombre)
+                        @Html.ValidationMessageFor(model => model.Nombre)
+                    </div>
+
+                </div>
+
+                <div class="control-group">
+                    @Html.LabelFor(model => model.Apellido, new { @class = "control-label" })
+                    <div class="controls">
+                        @Html.TextBoxFor(model => model.Apellido)
+                        @Html.ValidationMessageFor(model => model.Apellido)
+                    </div>
+
+                </div>
+
+                <div class="control-group">
+                    @Html.LabelFor(model => model.Email, new { @class = "control-label" })
+                    <div class="controls">
+                        @Html.TextBoxFor(model => model.Email)
+                        @Html.ValidationMessageFor(model => model.Email)
+                    </div>
+
+                </div>
+
+                <div class="control-group">
+                    @Html.LabelFor(model => model.Cedula, new { @class = "control-label" })
+                    <div class="controls">
+                        @Html.TextBoxFor(model => model.Cedula)
+                        @Html.ValidationMessageFor(model => model.Cedula)
+                    </div>
+
+                </div>
+
+                <div class="control-group">
+                    @Html.LabelFor(model => model.Telefono, new { @class = "control-label" })
+                    <div class="controls">
+                        @Html.TextBoxFor(model => model.Telefono)
+                        @Html.ValidationMessageFor(model => model.Telefono)
+                    </div>
+
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Aceptar</button>
+                    @Html.ActionLink("Cancelar", "ListaAlumnos", null, new { @class = "btn" })
+                </div>
+            }
+        </fieldset>
+    </div>
+</div>
+
+
+

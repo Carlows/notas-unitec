@@ -1,0 +1,12 @@
+﻿@model control_notas_cit.Models.Entidades.Minuta
+@using control_notas_cit.Helpers
+<div class="box-header">
+    <h2>@Html.TruncateText(@Model.Celula.Nombre, 50)</h2>
+    @if(Model.Aprobada == true){<span class="label label-info pull-right"><i class="halflings-icon white ok"></i> aprobada</span>}
+    else {<span class="label label-important pull-right">no aprobada</span>  }
+    <label class="text-center">@Model.Fecha</label>
+</div>
+<div class="box-content">
+    <h3 class="text-center"><small>Semana @Model.Semana.NumeroSemana</small></h3>
+    <pre>@Model.Contenido</pre>
+</div>

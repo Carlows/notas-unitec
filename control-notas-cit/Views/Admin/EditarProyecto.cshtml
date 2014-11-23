@@ -1,0 +1,53 @@
+﻿@model control_notas_cit.Models.ViewModels.ProjectEditViewModel
+@using control_notas_cit.Helpers
+@{
+    ViewBag.Title = "Editar Proyecto";
+    ViewBag.Seccion = "Admin";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section sidebar{
+    @Html.Partial("_SidebarPartialView")
+}
+
+<div class="row-fluid">
+    <div class="box span12">
+        <div class="box-header">
+            <h2>Editar Proyecto</h2>
+        </div>
+        <div class="box-content">
+            <fieldset>
+                @using (Html.BeginForm("EditarProyecto", "Admin", FormMethod.Post, new { @class = "form-horizontal" }))
+                {
+                    @Html.HiddenFor(m => m.Id)
+
+                    <div class="container-fluid">
+                        @Html.ValidationSummary(true)
+                    </div>
+
+                    <div class="control-group">
+                        @Html.LabelFor(model => model.Nombre, new { @class = "control-label" })
+                        <div class="controls">
+                            @Html.TextBoxFor(model => model.Nombre, new { @class = "", rows = "" })
+                            @Html.ValidationMessageFor(model => model.Nombre)
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        @Html.LabelFor(model => model.Descripcion, new { @class = "control-label" })
+                        <div class="controls">
+                            @Html.TextAreaFor(model => model.Descripcion, new { @class = "input-xxlarge", rows = "5" })
+                            @Html.ValidationMessageFor(model => model.Descripcion)
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Aceptar</button>
+                        @Html.ActionLink("Cancelar", "Index", null, new { @class = "btn" })
+                    </div>
+                }
+            </fieldset>
+        </div>
+    </div>
+</div>
+

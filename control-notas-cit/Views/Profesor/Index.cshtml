@@ -1,0 +1,155 @@
+﻿@using control_notas_cit.Helpers
+@model control_notas_cit.Models.ViewModels.ProfesorIndexViewModel
+@using control_notas_cit.Models.Entidades
+@{
+    ViewBag.Title = "Profesor";
+    ViewBag.Seccion = "Profesor";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section sidebar{
+    @Html.Partial("_SidebarProfesorPartialView")
+}
+<div class="row-fluid">
+    <!-- Last Week -->
+    @if (Model.Calendario != null && Model.Calendario.IsLastWeek == true && Model.Calendario.Finalizado == false)
+    {
+        <div class="box span8">
+            <div class="box-header">
+                <h2>Última semana</h2>
+            </div>
+            <div class="box-content">
+                <label>Para finalizar este calendario, @Html.ActionLink("sube las notas finales de los alumnos", "CargarNotasFinales")</label>
+            </div>
+        </div>
+    }
+    else if (Model.Calendario != null && Model.Calendario.Finalizado == true)
+    {
+        <div class="box span8">
+            <div class="box-header">
+                <h2>Calendario finalizado</h2>
+            </div>
+            <div class="box-content">
+                @Html.ActionLink("Crea un calendario nuevo", "AgregarCalendario", null, new { @class = "btn" })
+                @Html.ActionLink("Ver notas", "Notas", null, new { @class = "btn" })
+            </div>
+        </div>
+    }
+</div>
+<div class="row-fluid">    
+    <!-- Calendario -->
+    <div class="box span8">
+        <div class="box-header">
+            <h2>Calendario</h2>
+        </div>
+        <div class="box-content">
+            @if (Model.Calendario == null)
+            {
+                <label>Aún no existe calendario actual para este proyecto, @Html.ActionLink("Crea uno acá.", "AgregarCalendario")</label>
+            }
+            else
+            {
+                foreach (Semana s in @Model.Calendario.Semanas)
+                {
+                    if (Model.Calendario.SemanaActualID == s.SemanaID)
+                    {
+                        <div style="color:#333; margin-bottom: 0px;" class="box blue caja">
+                            <div class="box-header blue cajaclick">
+                                <h2>Semana @s.NumeroSemana </h2> <label class="text-right">@s.Fecha.ToShortDateString()</label>
+                            </div>
+                            <div class="box-content cajacontent clearfix" style="">
+                                <h4>Descripcion de la semana</h4>
+                                <pre>@s.Descripcion</pre>
+
+                                <h4>Actividad a realizar</h4>
+                                <pre>@s.Actividad</pre>
+
+                                @if (Model.Calendario.IsLastWeek == false)
+                                {
+                                    <a href="@Url.Action("FinalizarSemana", new { id = s.SemanaID })" class="btn btn-danger pull-right">Finalizar</a>
+                                }
+
+                                <a href="@Url.Action("EditarSemana", new { id = s.SemanaID })" class="btn btn-primary pull-right" style="margin-right:8px;">Editar</a>
+                                <a href="@Url.Action("MinutasSemana", new { id = s.SemanaID })" class="btn btn-primary pull-right" style="margin-right:8px;">Ver Minutas</a>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div style="color:#333; margin-bottom: 0px;" class="box caja">
+                            <div class="box-header cajaclick">
+                                <h2>Semana @s.NumeroSemana </h2><label class="text-right">@s.Fecha.ToShortDateString()</label>
+                            </div>
+                            <div class="box-content cajacontent clearfix" style="display:none;">
+                                <h4>Descripcion de la semana</h4>
+                                <pre>@s.Descripcion</pre>
+
+                                <h4>Actividad a realizar</h4>
+                                <pre>@s.Actividad</pre>
+
+                                <a href="@Url.Action("EditarSemana", new { id = s.SemanaID })" class="btn pull-right">Editar</a>
+                                <a href="@Url.Action("MinutasSemana", new { id = s.SemanaID })" class="btn pull-right" style="margin-right:8px;">Ver Minutas</a>
+                            </div>
+                        </div>
+                    }
+                }
+            }
+        </div>
+    </div>
+
+
+    <!-- Datos del proyecto -->
+    <div class="box black span4" style="color:#333;">
+        <div class="box-header" data-original-title="">
+            <h2>@Html.TruncateText(@Model.Proyecto.Nombre, 50)</h2>
+        </div>
+        <div class="box-content editar-proyecto">
+            <div class="page-header">
+                <h2>@Html.TruncateText(@Model.Proyecto.Nombre, 50)</h2>
+            </div>
+            <div class="row-fluid">
+                <h3>Profesores del proyecto</h3>
+                <ul>
+                    @foreach (var profesor in Model.Profesores)
+                    {
+                        <li><strong>@profesor</strong></li>
+                    }
+                </ul>
+            </div>
+            <hr />
+            <div class="row-fluid">
+                <div class="well">
+                    <pre>@Model.Proyecto.Descripcion</pre>
+                </div>
+            </div>
+
+            @Html.ActionLink("Editar datos del proyecto", "EditarProyecto", null, new { @class = "btn btn-primary btn-block editar-proyecto-link", style = "display: none;" })
+        </div>
+    </div>
+</div>
+
+
+@section scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            // Efecto para mostrar las semanas del calendario
+            $(".caja").each(function () {
+                var $caja = $(this);
+
+                $(".cajaclick", $caja).click(function () {
+                    var $div = $(".cajacontent", $caja);
+                    $div.slideToggle();
+                    $(".cajacontent").not($div).slideUp();
+                });
+            });
+
+            // Efecto para el boton de editar proyecto
+            $(document).on('mouseenter', '.editar-proyecto', function () {
+                $(this).find(".editar-proyecto-link").stop(true, true).slideDown("fast");
+            }).on('mouseleave', '.editar-proyecto', function () {
+                $(this).find(".editar-proyecto-link").stop(true, true).slideUp("fast");
+            });
+        });
+    </script>
+}

@@ -1,0 +1,7 @@
+﻿@using control_notas_cit.Helpers
+
+<li class="@Html.IsSelected(action: "Index")"><a href="@Url.Action("Index")"><i class="icon-book"></i><span class="hidden-tablet"> Inicio</span></a></li>
+<li class="@Html.IsSelected(action: "ListaAlumnos")"><a href="@Url.Action("ListaAlumnos")"><i class="icon-edit"></i><span class="hidden-tablet"> Alumnos</span></a></li>
+<li class="@Html.IsSelected(action: "Minutas")"><a href="@Url.Action("Minutas")"><i class="icon-user"></i><span class="hidden-tablet"> Minutas</span></a></li>
+<li><a href="#"><i class="icon-bar-chart"></i><span class="hidden-tablet"> Coordinador 4</span></a></li>
+

@@ -1,0 +1,53 @@
+﻿@model control_notas_cit.Models.ViewModels.MinutaCelulaViewModel
+
+@{
+    ViewBag.Title = "Agregar Minuta";
+    ViewBag.Seccion = "Coordinador";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section sidebar{
+    @Html.Partial("_SidebarCoordinadorPartialView")
+}
+
+<div class="box span12">
+    <div class="box-header" data-original-title="">
+        <h2><i class="halflings-icon edit"></i><span class="break"></span> Agregar minuta</h2>
+    </div>
+    <div class="box-content">
+        <fieldset>
+            @using (Html.BeginForm("AgregarMinuta", "Coordinador", FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data" }))
+            {
+                <div class="container-fluid">
+                    @Html.ValidationSummary(true)
+                </div>
+                
+                @Html.HiddenFor(m => m.Id)
+                
+                <div class="control-group">
+                    @Html.LabelFor(model => model.Contenido, new { @class = "control-label" })
+                    <div class="controls">
+                        @Html.TextAreaFor(model => model.Contenido, new { @class = "input-xxlarge", rows = "10" })
+                        @Html.ValidationMessageFor(model => model.Contenido)
+                    </div>
+                </div>
+                
+                <h3>O puedes subir un archivo de texto</h3>
+                
+                <div class="control-group">
+                    <label class="control-label">Sube un archivo: </label>
+                    <div class="controls">
+                        <div class="uploader">
+                            <input type="file" class="archivo" name="archivo" />
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Aceptar</button>
+                    @Html.ActionLink("Cancelar", "Index", null, new { @class = "btn" })
+                </div>
+            }
+        </fieldset>
+    </div>
+</div>

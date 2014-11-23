@@ -1,0 +1,117 @@
+﻿@model control_notas_cit.Models.ViewModels.CoordinadorIndexViewModel
+@using control_notas_cit.Models.Entidades
+@using control_notas_cit.Helpers
+@{
+    ViewBag.Title = "Coordinador";
+    ViewBag.Seccion = "Coordinador";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section sidebar{
+    @Html.Partial("_SidebarCoordinadorPartialView")
+}
+
+<div class="row-fluid">
+    <!-- Info Semana -->
+    <div class="box span8">
+        <div class="box-header">
+            <h2>Información de la semana</h2>
+        </div>
+        <div class="box-content">
+            @if(Model.Semana != null && Model.Semana.Calendario.IsLastWeek == false)
+            { 
+                <div class="page-header">
+                    <h2>Semana @Model.Semana.NumeroSemana</h2>
+                 </div>
+                <h3>Descripcion de la semana</h3>
+                <pre>@Model.Semana.Descripcion</pre>
+                
+                <h3>Actividad a realizar</h3>
+                <pre>@Model.Semana.Actividad</pre>
+
+                if(Model.MinutaSemana == null)
+                { 
+                    <div class="clearfix">
+                        @Html.ActionLink("Agregar minuta", "AgregarMinuta", null, new { @class = "btn btn-primaty pull-right" })
+                        @if(Model.AsistenciaEnviada == false)
+                        {
+                            @Html.ActionLink("Agregar Asistencias", "AsistenciaSemana", null, new { @class = "btn btn-primaty pull-right", style = "margin-right: 8px;" })                            
+                        }
+                    </div>
+                }
+                else if(Model.MinutaSemana != null && Model.MinutaSemana.Aprobada == false)
+                {
+                    <div class="clearfix">
+                        @Html.ActionLink("Editar minuta", "AgregarMinuta", null, new { @class = "btn btn-primaty pull-right" })
+                        @if (Model.AsistenciaEnviada == false)
+                        {
+                            @Html.ActionLink("Agregar Asistencias", "AsistenciaSemana", null, new { @class = "btn btn-primaty pull-right", style = "margin-right: 8px;" })
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="clearfix">
+                        @if (Model.AsistenciaEnviada == false)
+                        {
+                            @Html.ActionLink("Agregar Asistencias", "AsistenciaSemana", null, new { @class = "btn btn-primaty pull-right" })
+                        }
+                    </div>
+                }
+                
+            }
+            else if(Model.Semana != null && Model.Semana.Calendario.IsLastWeek == true)
+            {
+                <h2>Ya no quedan más semanas en este calendario.</h2>
+            }
+            else
+            {
+                <h2>No hay asignada ninguna semana todavia.</h2>
+            }
+        </div>
+    </div>
+
+
+    <!-- Datos de la celula -->
+    <div class="box black span4" style="color:#333;">
+        <div class="box-header" data-original-title="">
+            <h2>@Html.TruncateText(@Model.Celula.Nombre, 50)</h2>
+        </div>
+        <div class="box-content editar-celula">
+            <div class="page-header">
+                <h2>@Html.TruncateText(@Model.Celula.Nombre, 50)</h2>
+            </div>
+            <div class="row-fluid">
+                <h3>Coordinador de la celula</h3>
+                <ul>
+                    @foreach (var coordinador in @Model.Celula.Coordinadores.Select(p => new { Nombre = p.Nombre, Apellido = p.Apellido }))
+                    {
+                        <li><strong>@coordinador.Nombre @coordinador.Apellido</strong></li>
+                    }
+                </ul>
+            </div>
+            <hr />
+            <div class="row-fluid">
+                <div class="well">
+                    <pre>@Model.Celula.Descripcion</pre>
+                </div>
+            </div>
+
+            @Html.ActionLink("Editar datos de la celula", "EditarCelula", null, new { @class = "btn btn-primary btn-block editar-celula-link", style = "display: none;" })
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            // Efecto para el boton de editar celula
+            $(document).on('mouseenter', '.editar-celula', function () {
+                $(this).find(".editar-celula-link").stop(true, true).slideDown("fast");
+            }).on('mouseleave', '.editar-celula', function () {
+                $(this).find(".editar-celula-link").stop(true, true).slideUp("fast");
+            });
+        });
+    </script>
+}
+

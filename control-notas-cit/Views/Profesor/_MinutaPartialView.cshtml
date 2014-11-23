@@ -1,0 +1,22 @@
+﻿@model control_notas_cit.Models.Entidades.Minuta
+@using control_notas_cit.Helpers
+<div class="box-header">
+    <h2>@Html.TruncateText(@Model.Celula.Nombre, 50)</h2>
+    @if(Model.Aprobada == true){<span class="label label-info pull-right"><i class="halflings-icon white ok"></i> aprobada</span>}
+    else {<span class="label label-important pull-right">no aprobada</span>  }
+    <label class="text-center">@Model.Fecha</label>
+</div>
+<div class="box-content">
+    <pre>@Model.Contenido</pre>
+
+    @if(Model.Aprobada == false && Model.Semana.NumeroSemana == (ViewData["Semana"] as int?) && (ViewData["IsLastWeek"] as bool?) == false)
+    { 
+        <div class="clearfix">
+            @using (Html.BeginForm("AprobarMinuta", "Profesor", FormMethod.Post, new { style = "" }))
+            {
+                @Html.Hidden("id_minuta", Model.MinutaID)
+                <button type="submit" class="btn btn-primary pull-right">Aprobar Minuta</button>
+            }
+        </div>
+    }
+</div>

@@ -1,0 +1,68 @@
+﻿@model IList<IdentitySample.Models.ApplicationUser>
+@using IdentitySample.Models
+@{
+    ViewBag.Title = "Lista Profesores";
+    ViewBag.Seccion = "Administrador global";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section sidebar{
+    @Html.Partial("_SidebarPartialView")
+}
+
+<div class="box span12">
+    <div class="box-header" data-original-title="">
+        <h2><i class="halflings-icon list"></i><span class="break"></span> Lista Profesores.</h2>
+    </div>
+    <div class="box-content">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Cedula</th>
+                    <th>Teléfono</th>
+                    <th>Email</th>
+                    <th>Proyecto</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if(Model.Count > 0)
+                {
+                    foreach(ApplicationUser profesor in Model)
+                    {
+                        <tr>
+                            <td class="center">@profesor.Nombre</td>
+                            <td class="center">@profesor.Apellido</td>
+                            <td class="center">@profesor.Cedula</td>
+                            <td class="center">@profesor.PhoneNumber</td>
+                            <td class="center">@profesor.Email</td>
+                            <td class="center">
+                                @if(@profesor.Proyecto != null)
+                                {
+                                    @profesor.Proyecto.Nombre
+                                }                                                                                          
+                            </td>
+                            <td class="center">
+                                <a class="btn btn-info" href="@Url.Action("EditarProfesor", new { id = profesor.Id })">
+                                    <i class="halflings-icon white zoom-in"></i>
+                                </a>
+                                @using (Html.BeginForm("BorrarProfesor", "Admin", FormMethod.Post, new { style = "display: inline-block; margin: 0px;" }))
+                                {
+                                    @Html.Hidden("id", profesor.Id)
+                                    <button type="submit" class="btn btn-danger"><i class="halflings-icon white trash"></i></button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+                
+            </tbody>
+        </table>
+        <div class="container-fluid">
+            <a class="btn btn-primary center" href="@Url.Action("AgregarProfesor")">Agregar nuevo profesor</a>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,93 @@
+﻿@model control_notas_cit.Models.ViewModels.AdminViewModel
+@{
+    ViewBag.Title = "Agregar Administrador";
+    ViewBag.Seccion = "Administrador global";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section sidebar{
+    @Html.Partial("_SidebarPartialView")
+}
+
+<div class="box span8">
+    <div class="box-header" data-original-title="">
+        <h2><i class="halflings-icon edit"></i><span class="break"></span> Agregar administrador.</h2>
+    </div>
+    <div class="box-content">
+        <fieldset>
+            @using (Html.BeginForm("AgregarAdministrador", "Admin", FormMethod.Post, new { @class = "form-horizontal" }))
+            {
+                <div class="container-fluid">
+                    @Html.ValidationSummary(true)
+                </div>
+                <div class="control-group">
+                    @Html.LabelFor(model => model.Nombre, new { @class = "control-label" })
+                    <div class="controls">
+                        @Html.TextBoxFor(model => model.Nombre)
+                        @Html.ValidationMessageFor(model => model.Nombre)
+                    </div>
+
+                </div>
+
+                <div class="control-group">
+                    @Html.LabelFor(model => model.Apellido, new { @class = "control-label" })
+                    <div class="controls">
+                        @Html.TextBoxFor(model => model.Apellido)
+                        @Html.ValidationMessageFor(model => model.Apellido)
+                    </div>
+
+                </div>
+
+                <div class="control-group">
+                    @Html.LabelFor(model => model.Email, new { @class = "control-label" })
+                    <div class="controls">
+                        @Html.TextBoxFor(model => model.Email)
+                        @Html.ValidationMessageFor(model => model.Email)
+                    </div>
+
+                </div>
+
+                <div class="control-group">
+                    @Html.LabelFor(model => model.Cedula, new { @class = "control-label" })
+                    <div class="controls">
+                        @Html.TextBoxFor(model => model.Cedula)
+                        @Html.ValidationMessageFor(model => model.Cedula)
+                    </div>
+
+                </div>
+
+                <div class="control-group">
+                    @Html.LabelFor(model => model.PasswordHash, new { @class = "control-label" })
+                    <div class="controls">
+                        @Html.PasswordFor(model => model.PasswordHash)
+                        @Html.ValidationMessageFor(model => model.PasswordHash)
+                    </div>
+
+                </div>
+                
+                <div class="control-group">
+                    @Html.LabelFor(model => model.ConfirmarPassword, new { @class = "control-label" })
+                    <div class="controls">
+                        @Html.PasswordFor(model => model.ConfirmarPassword)
+                        @Html.ValidationMessageFor(model => model.ConfirmarPassword)
+                    </div>
+
+                </div>
+
+                <div class="control-group">
+                    @Html.LabelFor(model => model.Telefono, new { @class = "control-label" })
+                    <div class="controls">
+                        @Html.TextBoxFor(model => model.Telefono)
+                        @Html.ValidationMessageFor(model => model.Telefono)
+                    </div>
+
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Aceptar</button>
+                    @Html.ActionLink("Cancelar", "Index", null, new { @class = "btn" })
+                </div>
+            }
+        </fieldset>
+    </div>
+</div>

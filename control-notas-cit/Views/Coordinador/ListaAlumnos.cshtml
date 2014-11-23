@@ -1,0 +1,64 @@
+﻿@model IList<control_notas_cit.Models.Entidades.Alumno>
+@using control_notas_cit.Models.Entidades
+@using control_notas_cit.Helpers
+@{
+    ViewBag.Title = "Lista Alumnos";
+    ViewBag.Seccion = "Coordinador";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section sidebar{
+    @Html.Partial("_SidebarCoordinadorPartialView")
+}
+
+<div class="box span12">
+    <div class="box-header" data-original-title="">
+        <h2><i class="halflings-icon list"></i><span class="break"></span> Lista Alumnos.</h2>
+    </div>
+    <div class="box-content">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Cedula</th>
+                    <th>Teléfono</th>
+                    <th>Email</th>
+                    <th>Celula</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Count > 0)
+                {
+                    foreach (Alumno alumno in Model)
+                    {
+                        <tr>
+                            <td class="center">@alumno.Nombre</td>
+                            <td class="center">@alumno.Apellido</td>
+                            <td class="center">@alumno.Cedula</td>
+                            <td class="center">@alumno.Telefono</td>
+                            <td class="center">@alumno.Email</td>
+                            <td class="center">@Html.TruncateText(@alumno.Celula.Nombre, 30)</td>
+                            <td class="center">
+                                <a class="btn btn-info" href="@Url.Action("EditarAlumno", new { id = alumno.AlumnoID })">
+                                    <i class="halflings-icon white zoom-in"></i>
+                                </a>
+                                @using (Html.BeginForm("BorrarAlumno", "Coordinador", FormMethod.Post, new { style = "display: inline-block; margin: 0px;" }))
+                                {
+                                    @Html.Hidden("id", alumno.AlumnoID)
+                                    <button type="submit" class="btn btn-danger"><i class="halflings-icon white trash"></i></button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+
+            </tbody>
+        </table>
+        <div class="container-fluid">
+            <a class="btn btn-primary center" href="@Url.Action("AgregarAlumno")">Agregar nuevo alumno</a>
+        </div>
+    </div>
+</div>
+

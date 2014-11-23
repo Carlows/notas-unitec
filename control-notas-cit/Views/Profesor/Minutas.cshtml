@@ -1,0 +1,45 @@
+﻿@model control_notas_cit.Models.ViewModels.MinutaPartialViewModel
+@using control_notas_cit.Models.Entidades
+@using control_notas_cit.Helpers
+@using control_notas_cit.Models.ViewModels
+@{
+    ViewBag.Title = "Minutas";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section sidebar{
+    @Html.Partial("_SidebarProfesorPartialView")
+}
+
+<!--- La lógica que tiene la vista es para dividir los proyectos de 2 en 2 sin perder el layout --->
+@if (Model.Minutas.Count <= 0)
+{
+    <div class="alert alert-error">
+        <h2>Oops, al parecer aún no se ha subido ninguna minuta.</h2>
+    </div>  
+}
+else
+{
+    <div class="row-fluid">
+        @{
+            int counter = 0;
+
+            foreach (Minuta m in Model.Minutas)
+            {
+
+                @Html.GridBoxesOpen(counter)
+
+                <div class="box span6">
+                    @Html.Partial("_MinutaPartialView", m, new ViewDataDictionary { {"Semana", Model.CurrentSemana.NumeroSemana }, { "IsLastWeek", Model.CurrentSemana.Calendario.IsLastWeek } })
+                </div>
+            
+                @Html.GridBoxesClose(counter, Model.Minutas.Count)
+
+                counter++;
+            }
+
+        }
+    </div>
+}
+
+

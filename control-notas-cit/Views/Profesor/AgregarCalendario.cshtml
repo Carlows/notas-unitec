@@ -1,0 +1,94 @@
+﻿@model control_notas_cit.Models.ViewModels.CalendarioViewModel
+@using control_notas_cit.Models.Entidades
+@{
+    ViewBag.Title = "AgregarCalendario";
+    ViewBag.Seccion = "Profesor";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section sidebar{
+    @Html.Partial("_SidebarProfesorPartialView")
+}
+
+<div class="row-fluid">
+    <div class="box span8">
+        <div class="box-header" data-original-title="">
+            <h2><i class="halflings-icon edit"></i><span class="break"></span> Agregar nuevo calendario.</h2>
+        </div>
+        <div class="box-content">
+            <fieldset>
+                @using (Html.BeginForm("AgregarCalendario", "Profesor", FormMethod.Post, new { @class = "form-horizontal" }))
+                {
+                    @Html.ValidationSummary()
+                    
+                    <div class="control-group">
+                        @Html.LabelFor(m => m.FechaInicio, new { @class = "control-label" })
+                        <div class="controls">
+                            @Html.TextBoxFor(m => m.FechaInicio, "{0:dd/MM/yyyy}", new { @class = "fecha" })
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        @Html.LabelFor(m => m.Notas_Minutas_Valor, new { @class = "control-label" })
+                        <div class="controls">
+                            @Html.TextBoxFor(m => m.Notas_Minutas_Valor)
+                            @Html.ValidationMessageFor(m => m.Notas_Minutas_Valor)
+                        </div>
+
+                    </div>
+                    
+                    <div class="control-group">
+                        @Html.LabelFor(m => m.Notas_Asistencias_Valor, new { @class = "control-label" })
+                        <div class="controls">
+                            @Html.TextBoxFor(m => m.Notas_Asistencias_Valor)
+                            @Html.ValidationMessageFor(m => m.Notas_Asistencias_Valor)
+                        </div>
+
+                    </div>
+                    
+                    <div class="control-group">
+                        @Html.LabelFor(m => m.Notas_Presentacion_Valor, new { @class = "control-label" })
+                        <div class="controls">
+                            @Html.TextBoxFor(m => m.Notas_Presentacion_Valor)
+                            @Html.ValidationMessageFor(m => m.Notas_Presentacion_Valor)
+                        </div>
+
+                    </div>
+                    
+                    <label class="">Ahora completa la informacion para el calendario.</label>
+                   <br />
+                    for (int i = 0; i < @Model.Semanas.Count; i++ )
+                    { 
+                        @Html.HiddenFor(m => m.Semanas[i].NumeroSemana)
+                        <label class="text-center">Semana @(i + 1)</label>
+                        <div class="control-group">
+                            @Html.LabelFor(m => m.Semanas[i].Descripcion, new { @class = "control-label" })
+                            <div class="controls">
+                                @Html.TextAreaFor(m => m.Semanas[i].Descripcion, new { @class = "span7", rows = 4 })
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            @Html.LabelFor(m => m.Semanas[i].Actividad, new { @class = "control-label" })
+                            <div class="controls">
+                                @Html.TextAreaFor(m => m.Semanas[i].Actividad, new { @class = "span7", rows = 4 })
+                            </div>
+                        </div>
+                    }
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Agregar</button>
+                         @Html.ActionLink("Cancelar", "Index", null, new { @class = "btn" })
+                    </div>
+                }
+            </fieldset> 
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+        $(function () {
+            $(".fecha").datepicker({ dateFormat: "dd-mm-yy" }).val()
+        });
+    </script>
+}

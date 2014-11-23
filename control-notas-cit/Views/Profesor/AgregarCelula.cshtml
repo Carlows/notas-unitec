@@ -1,0 +1,67 @@
+﻿@using control_notas_cit.Helpers
+@using control_notas_cit.Models.Entidades
+@model control_notas_cit.Models.ViewModels.CelulaViewModel
+@{
+    ViewBag.Title = "Crear nueva celula";
+    ViewBag.Seccion = "Profesor";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section sidebar{
+    @Html.Partial("_SidebarProfesorPartialView")
+}
+
+<div class="box span8">
+    <div class="box-header" data-original-title="">
+        <h2><i class="halflings-icon edit"></i><span class="break"></span> Crear nueva celula.</h2>
+    </div>
+    <div class="box-content">
+        <fieldset>
+            @using (Html.BeginForm("AgregarCelula", "Profesor", FormMethod.Post, new { @class = "form-horizontal" }))
+            {
+                @Html.ValidationSummary(true)
+
+                <div class="control-group">
+                    @Html.LabelFor(model => model.Nombre, new { @class = "control-label" })
+                    <div class="controls">
+                        @Html.TextBoxFor(model => model.Nombre)
+                        @Html.ValidationMessageFor(model => model.Nombre)
+                    </div>
+
+                </div>
+
+                <div class="control-group">
+                    @Html.LabelFor(model => model.Descripcion, new { @class = "control-label" })
+                    <div class="controls">
+                        @Html.TextAreaFor(model => model.Descripcion, new { rows = 5, cols = 8 })
+                        @Html.ValidationMessageFor(model => model.Descripcion)
+                    </div>
+
+                </div>
+
+                <div class="control-group">
+                    @Html.LabelFor(model => model.CoordinadoresID, new { @class = "control-label" })
+                    <div class="controls">
+                        @if(Model.Coordinadores.Count() == 0)
+                        {
+                            <label>Primero debes agregar un coordinador</label>
+                        }
+                        else
+                        { 
+                            @Html.ListBoxFor(model => model.CoordinadoresID, @Model.Coordinadores)
+                        }
+                    </div>
+
+                    @Html.ValidationMessageFor(model => model.CoordinadoresID)
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Crear</button>
+                    @Html.ActionLink("Cancelar", "Index", null, new { @class = "btn" })
+                </div>
+            }
+        </fieldset>
+    </div>
+</div>
+
+

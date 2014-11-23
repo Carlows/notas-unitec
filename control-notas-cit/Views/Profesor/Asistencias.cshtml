@@ -1,0 +1,129 @@
+﻿@model control_notas_cit.Models.ViewModels.AsistenciasViewModel
+@using control_notas_cit.Models.Entidades
+@{
+    ViewBag.Title = "Asistencias";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section styles{
+    <style>
+        #alumnos_filter{
+        }
+    </style>
+}
+
+@section sidebar{
+    @Html.Partial("_SidebarProfesorPartialView")
+}
+
+<div class="box span12">
+    <div class="box-header" data-original-title="">
+        <h2><i class="halflings-icon list"></i><span class="break"></span> Lista de asistencias</h2>
+    </div>
+    <div class="box-content">
+        <table class="table table-striped" id="alumnos" width="100">
+            <thead>
+                <tr>
+                    <th colspan="2" style="text-align:center;">Datos</th>
+                    <th colspan="12" style="text-align:center;">Semanas</th>
+                </tr>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    @for (int x = 1; x <= 12; x++)
+                    {
+                        <th>sem @x</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                <!-- LETS GET CRAZY!!!! -->
+                @if (Model.Alumnos.Count > 0)
+                {
+                    foreach(Alumno alumno in Model.Alumnos)
+                    {
+                        <tr>
+                            <td>@alumno.Nombre</td>
+                            <td>@alumno.Apellido</td>
+                            
+                            @for (int x = 1; x <= 12; x++ )
+                            {
+                                bool agrego = false;
+                                foreach(Asistencia asistencia in alumno.Asistencias)
+                                {
+                                    if(asistencia.Semana.NumeroSemana == x)
+                                    {
+                                        agrego = true;
+                                        
+                                        if(asistencia.Asistio == true)
+                                        { 
+                                            <td>
+                                                <label class="label label-info">Asistió</label> 
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td>
+                                                <label class="label label-inverse">No Asistió</label> 
+                                            </td>
+                                        }
+                                    }
+                                }
+                                
+                                if(agrego == false)
+                                {
+                                    <td></td>
+                                }
+                            }
+
+                            <!--
+                            //for (int x = 0; x < alumno.Asistencias.Count; x++)
+                            {
+                                <td>
+                                    
+                                    //if (alumno.Asistencias[x] != null)
+                                    {
+                                        if (alumno.Asistencias[x].Asistio == true)
+                                        {
+                                            <label class="label label-info">Asistió</label>
+                                        }
+                                        else
+                                        {
+                                            <label class="label label-inverse">No asistió</label>
+                                        }
+                                    }
+                                </td>
+                            }
+
+                            //if(alumno.Asistencias.Count < 12)
+                            {
+                                for(int y = (alumno.Asistencias.Count + 1); y <= 12; y++)
+                                {
+                                    <td></td>
+                                }
+                            }
+                            -->
+                        </tr>
+                    }                        
+                }
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#alumnos').dataTable( {
+                "sScrollX": "100%",
+                "bPaginate": false,
+                "bInfo": false,
+                "oLanguage": {
+                    "sSearch": "Buscar alumno:  "
+                },
+                "bAutoWidth": false
+            });
+        } );
+    </script>
+}
