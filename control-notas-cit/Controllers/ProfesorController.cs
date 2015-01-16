@@ -133,23 +133,10 @@ namespace control_notas_cit.Controllers
         //
         // GET: /Profesor/AgregarCalendario/
         public ActionResult AgregarCalendario()
-        {
-            List<Semana> semanas = new List<Semana>();
-
-            for (int i = 1; i <= 12; i++)
-            {
-                Semana s = new Semana()
-                {
-                    NumeroSemana = i
-                };
-
-                semanas.Add(s);
-            }
-
+        {            
             CalendarioViewModel model = new CalendarioViewModel()
             {
-                FechaInicio = DateTime.Now,
-                Semanas = semanas
+                FechaInicio = DateTime.Now
             };
 
             return View(model);
@@ -170,27 +157,32 @@ namespace control_notas_cit.Controllers
                 calendario.FechaInicio = model.FechaInicio;
                 calendario.FechaFinal = model.FechaInicio.AddDays(numeroSemanas * 7);
 
-                List<Semana> semanas = model.Semanas;
                 calendario.Semanas = new List<Semana>();
 
-                foreach (Semana s in semanas)
+                for(int index = 1; index <= numeroSemanas; index++) 
                 {
-                    s.Fecha = model.FechaInicio.AddDays(s.NumeroSemana * 7);
-                    calendario.Semanas.Add(s);
+                    Semana semana = new Semana()
+                    {
+                        Fecha = model.FechaInicio.AddDays(index * 7),
+                        NumeroSemana = index
+                    };
+                    calendario.Semanas.Add(semana);
                 }
 
                 var user = GetCurrentUser();
 
                 if (user == null)
                 {
-                    return HttpNotFound("Usuario no encontrado");
+                    TempData["Message"] = "Usuario no encontrado";
+                    return RedirectToAction("Index");
                 }
 
                 var proyecto = user.Proyecto;
 
                 if (proyecto == null)
                 {
-                    return HttpNotFound("Proyecto no encontrado");
+                    TempData["Message"] = "Proyecto no encontrado";
+                    return RedirectToAction("Index");
                 }
 
                 calendario.Proyecto = proyecto;
@@ -334,6 +326,7 @@ namespace control_notas_cit.Controllers
                         }
                     }
 
+                    // Numero de semanas --- CAMBIAR
                     if (semana.NumeroSemana < 12)
                     {
                         Semana proximaSemana = GetCurrentCalendario().Semanas.Where(s => s.NumeroSemana == (semana.NumeroSemana + 1)).Single();

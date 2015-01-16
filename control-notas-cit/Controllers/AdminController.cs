@@ -23,7 +23,7 @@ namespace control_notas_cit.Controllers
         private IRepositorioGenerico<Proyecto> repoProyectos = null;
         private IRepositorioGenerico<ApplicationUser> repoUsers = null;
         private string profesor_rol_id;
-
+        
         public AdminController()
         {
             // Obtengo el contexto que OWIN creó al iniciar la aplicación
@@ -46,32 +46,28 @@ namespace control_notas_cit.Controllers
 
         //
         // GET: /Admin/Crear/
+        // Crear proyectos
         public ActionResult Crear()
         {
-            List<ApplicationUser> users = repoUsers.SelectAll().Where(x => x.Roles.Select(y => y.RoleId).Contains(profesor_rol_id) && x.Proyecto == null).ToList();
-            List<string> nombres = new List<string>();
-
-            foreach (ApplicationUser u in users)
+            return View(new ProjectViewModel()
             {
-                nombres.Add(string.Concat(u.Nombre + " " + u.Apellido));
-            }
-
-            return View(new ProjectViewModel
-            {
-                Profesores = nombres
+                Profesores = new SelectList(GetProfesoresList(), "Value", "Text")
             });
         }
 
         //
         // POST: /Admin/Crear/
+        // Crear proyectos
         [HttpPost]
         public ActionResult Crear(ProjectViewModel model)
         {
+            model.Profesores = new SelectList(GetProfesoresList(), "Value", "Text");
+
             if (ModelState.IsValid)
             {
-                List<ApplicationUser> profesores = (from u in repoUsers.SelectAll()
-                                                    where model.Profesores.Contains(string.Concat(u.Nombre, " ", u.Apellido))
-                                                    select u).ToList();
+                var profesores = new List<ApplicationUser>();
+                profesores.Add(UserManager.FindByEmail(model.ProfesorEmail));
+
                 Proyecto p = new Proyecto()
                 {
                     Nombre = model.Nombre,
@@ -92,6 +88,7 @@ namespace control_notas_cit.Controllers
         {
             if(id == null)
             {
+                TempData["message"] = "No se pudo encontrar el proyecto";
                 return RedirectToAction("Index");
             }
 
@@ -99,6 +96,7 @@ namespace control_notas_cit.Controllers
 
             if( proyecto == null )
             {
+                TempData["message"] = "No se pudo encontrar el proyecto";
                 return RedirectToAction("Index");
             }
 
@@ -186,7 +184,7 @@ namespace control_notas_cit.Controllers
 
                 if (profesorResult.Succeeded)
                 {
-                    var roleResult = await UserManager.AddToRoleAsync(profesor.Id, "Profesor");
+                    var roleResult = await UserManager.AddToRoleAsync(profesor.Id, RoleType.Profesor);
 
                     if (!roleResult.Succeeded)
                     {
@@ -212,11 +210,13 @@ namespace control_notas_cit.Controllers
         {
             if (id == null)
             {
+                TempData["message"] = "No se pudo encontrar el profesor";
                 return RedirectToAction("ListaProfesores");
             }
             var profesor = await UserManager.FindByIdAsync(id);
             if (profesor == null)
             {
+                TempData["message"] = "No se pudo encontrar el profesor";
                 return RedirectToAction("ListaProfesores");
             }
 
@@ -254,7 +254,8 @@ namespace control_notas_cit.Controllers
                 var user = await UserManager.FindByIdAsync(model.Id);
                 if (user == null)
                 {
-                    return HttpNotFound();
+                    TempData["message"] = "No se pudo encontrar el profesor";
+                    return RedirectToAction("ListaProfesores");
                 }
 
                 user.UserName = model.Email;
@@ -293,12 +294,14 @@ namespace control_notas_cit.Controllers
         {
             if (id == null)
             {
+                TempData["message"] = "No se pudo encontrar el profesor";
                 return RedirectToAction("ListaProfesores");
             }
 
             var user = await UserManager.FindByIdAsync(id);
             if (user == null)
             {
+                TempData["message"] = "No se pudo encontrar el profesor";
                 return RedirectToAction("ListaProfesores");
             }
             var result = await UserManager.DeleteAsync(user);
@@ -312,6 +315,7 @@ namespace control_notas_cit.Controllers
         {
             if(id == null)
             {
+                TempData["message"] = "No se pudo encontrar el proyecto";
                 return RedirectToAction("Index");
             }
 
@@ -319,6 +323,7 @@ namespace control_notas_cit.Controllers
 
             if(proyecto == null)
             {
+                TempData["message"] = "No se pudo encontrar el proyecto";
                 return RedirectToAction("Index");
             }
 
@@ -404,7 +409,7 @@ namespace control_notas_cit.Controllers
                 data.headers = new List<string> { "Nombre", "Apellido", "Cedula", "Proyecto", "Celula", "Nota Final" };
 
                 var alumnos = proyecto.Celulas.SelectMany(c => c.Alumnos).ToList();
-                                
+                
 
                 List<List<string>> alumnosString = (from alumno in alumnos
                                    select new List<string>
@@ -419,7 +424,7 @@ namespace control_notas_cit.Controllers
 
                 data.dataLines = alumnosString;
 
-                return File(new System.Text.UTF8Encoding().GetBytes(ExportHelper.ConvertToCSV(data)), "text/csv", string.Format("ReporteNotas{0}.csv", proyecto.Nombre)); 
+                return File(new System.Text.UTF8Encoding().GetBytes(ExportHelper.ConvertToCSV(data)), "text/csv", string.Format("ReporteNotas-{0}.csv", proyecto.Nombre)); 
             }
             else
             {
@@ -460,7 +465,7 @@ namespace control_notas_cit.Controllers
                                        Nota = (Math.Round((float)(alumno.Notas.Where(n => n.Calendario.CalendarioID == proyecto.CalendarioActualID).Single().Nota_Final))).ToString()
                                    }).ToList();
 
-                return File(new System.Text.UTF8Encoding().GetBytes(ExportHelper.ConvertToExcel<Data>(datos)), "application/ms-excel", string.Format("ReporteNotas{0}.xls", proyecto.Nombre)); 
+                return File(new System.Text.UTF8Encoding().GetBytes(ExportHelper.ConvertToExcel<Data>(datos)), "application/ms-excel", string.Format("ReporteNotas-{0}.xls", proyecto.Nombre)); 
             }
             else
             {
@@ -479,6 +484,18 @@ namespace control_notas_cit.Controllers
                 .ToList();
 
             return proyectos;
+        }
+
+        private List<SelectListItem> GetProfesoresList()
+        {
+            List<SelectListItem> profesores = repoUsers.SelectAll().Where(x => x.Roles.Select(y => y.RoleId).Contains(profesor_rol_id) && x.Proyecto == null)
+                                                    .Select(p => new SelectListItem()
+                                                    {
+                                                        Value = p.Email,
+                                                        Text = String.Format("{0} {1}", p.Nombre, p.Apellido)
+                                                    }).ToList();
+             
+            return profesores;
         }
 
         // Estos métodos permiten acceder a la información de los usuarios, aunque también se pueden obtener a través de la tabla Users

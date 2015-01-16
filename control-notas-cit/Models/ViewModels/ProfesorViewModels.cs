@@ -25,8 +25,6 @@ namespace control_notas_cit.Models.ViewModels
         [Display(Name="Fecha de Inicio")]
         public DateTime FechaInicio { get; set; }
         [Required]
-        public List<Semana> Semanas { get; set; }
-        [Required]
         [Display(Name = "Valor minutas")]
         [Range(minimum: 0, maximum: 10, ErrorMessage="El valor debe estar entre 0 y 10")]
         public float? Notas_Minutas_Valor { get; set; }

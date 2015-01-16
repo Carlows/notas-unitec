@@ -142,4 +142,6 @@ http://prntscr.com/5261vo
 - File uploader, datos a español.
 - Corregir login validacion
 
+Users can successfully register using an email address that contains special characters (ie. +,-) as I added this line in the RegisterUser method: _userManager.UserValidator = new UserValidator(_userManager) { AllowOnlyAlphanumericUserNames = false };
+
 ----------------------------------------------------------------------------------

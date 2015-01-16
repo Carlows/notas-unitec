@@ -15,7 +15,10 @@ namespace control_notas_cit.Models.ViewModels
         [DataType(DataType.MultilineText)]
         public string Descripcion { get; set; }
         [Required]
-        public IEnumerable<string> Profesores { get; set; }
+        [Display(Name = "Profesor")]
+        public string ProfesorEmail { get; set; }
+
+        public SelectList Profesores { get; set; }
     }
 
     public class ProjectEditViewModel

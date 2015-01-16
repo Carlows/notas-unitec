@@ -48,7 +48,7 @@
                         }
                         else
                         {
-                            @Html.ListBoxFor(x => x.Profesores, new MultiSelectList(Model.Profesores))
+                            @Html.DropDownListFor(model => model.ProfesorEmail, Model.Profesores, "Elige un profesor")
                         }
                     </div>
 

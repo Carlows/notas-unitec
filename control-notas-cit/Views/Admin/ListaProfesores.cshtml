@@ -10,6 +10,14 @@
     @Html.Partial("_SidebarPartialView")
 }
 
+@if (TempData.Count() > 0)
+{
+    <div class="alert alert-error">
+        <button type="button" class="close" data-dismiss="alert">×</button>
+        <strong>Error</strong> @TempData["message"]
+    </div>
+}
+
 <div class="box span12">
     <div class="box-header" data-original-title="">
         <h2><i class="halflings-icon list"></i><span class="break"></span> Lista Profesores.</h2>

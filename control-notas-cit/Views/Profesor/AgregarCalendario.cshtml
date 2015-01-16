@@ -54,27 +54,7 @@
                         </div>
 
                     </div>
-                    
-                    <label class="">Ahora completa la informacion para el calendario.</label>
-                   <br />
-                    for (int i = 0; i < @Model.Semanas.Count; i++ )
-                    { 
-                        @Html.HiddenFor(m => m.Semanas[i].NumeroSemana)
-                        <label class="text-center">Semana @(i + 1)</label>
-                        <div class="control-group">
-                            @Html.LabelFor(m => m.Semanas[i].Descripcion, new { @class = "control-label" })
-                            <div class="controls">
-                                @Html.TextAreaFor(m => m.Semanas[i].Descripcion, new { @class = "span7", rows = 4 })
-                            </div>
-                        </div>
-                        <div class="control-group">
-                            @Html.LabelFor(m => m.Semanas[i].Actividad, new { @class = "control-label" })
-                            <div class="controls">
-                                @Html.TextAreaFor(m => m.Semanas[i].Actividad, new { @class = "span7", rows = 4 })
-                            </div>
-                        </div>
-                    }
-                    
+                                        
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">Agregar</button>
                          @Html.ActionLink("Cancelar", "Index", null, new { @class = "btn" })
