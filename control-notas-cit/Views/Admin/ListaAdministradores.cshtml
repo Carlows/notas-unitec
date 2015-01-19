@@ -1,0 +1,64 @@
+﻿@model IList<IdentitySample.Models.ApplicationUser>
+@using IdentitySample.Models
+@{
+    ViewBag.Title = "Lista Admnistradores";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section sidebar{
+    @Html.Partial("_SidebarPartialView")
+}
+
+@if (TempData.Count() > 0)
+{
+    <div class="alert alert-error">
+        <button type="button" class="close" data-dismiss="alert">×</button>
+        <strong>Error</strong> @TempData["message"]
+    </div>
+}
+
+<div class="box span12">
+    <div class="box-header" data-original-title="">
+        <h2><i class="halflings-icon list"></i><span class="break"></span> Lista Administradores.</h2>
+    </div>
+    <div class="box-content">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Cedula</th>
+                    <th>Teléfono</th>
+                    <th>Email</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Count > 0)
+                {
+                    foreach (ApplicationUser admin in Model)
+                    {
+                        <tr>
+                            <td class="center">@admin.Nombre</td>
+                            <td class="center">@admin.Apellido</td>
+                            <td class="center">@admin.Cedula</td>
+                            <td class="center">@admin.PhoneNumber</td>
+                            <td class="center">@admin.Email</td>
+                            <td class="center">
+                                @using (Html.BeginForm("BorrarAdministrador", "Admin", FormMethod.Post, new { style = "display: inline-block; margin: 0px;" }))
+                                {
+                                    @Html.Hidden("id", admin.Id)
+                                    <button type="submit" class="btn btn-danger"><i class="halflings-icon white trash"></i></button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+
+            </tbody>
+        </table>
+        <div class="container-fluid">
+            <a class="btn btn-primary center" href="@Url.Action("AgregarAdministrador")">Agregar nuevo administrador</a>
+        </div>
+    </div>
+</div>

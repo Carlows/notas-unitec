@@ -99,6 +99,7 @@ namespace control_notas_cit.Controllers
 
             if (celula == null)
             {
+                TempData["message"] = "No se pudo encontrar la celula";
                 return RedirectToAction("Index");
             }
 
@@ -187,6 +188,7 @@ namespace control_notas_cit.Controllers
         {
             if (id == null)
             {
+                TempData["message"] = "No se pudo encontrar el alumno";
                 return RedirectToAction("ListaAlumnos");
             }
 
@@ -194,6 +196,7 @@ namespace control_notas_cit.Controllers
 
             if (alumno == null)
             {
+                TempData["message"] = "No se pudo encontrar el alumno";
                 return RedirectToAction("ListaAlumnos");
             }
 
@@ -246,6 +249,7 @@ namespace control_notas_cit.Controllers
         {
             if (id == null)
             {
+                TempData["message"] = "No se pudo encontrar el alumno";
                 return RedirectToAction("ListaAlumnos");
             }
 
@@ -261,6 +265,7 @@ namespace control_notas_cit.Controllers
         {
             if (GetCurrentSemana() == null)
             {
+                TempData["message"] = "No se pudo encontrar la semana";
                 return RedirectToAction("Index");
             }
 
@@ -274,6 +279,7 @@ namespace control_notas_cit.Controllers
             {
                 if (minutaActual.Aprobada == true)
                 {
+                    TempData["message"] = "La minuta de esta semana ya fué enviada y aprobada, no se puede editar.";
                     return RedirectToAction("Index");
                 }
 
@@ -363,6 +369,7 @@ namespace control_notas_cit.Controllers
 
             if (semana == null || celula == null || islastweek == true)
             {
+                TempData["message"] = "No se pueden enviar asistencias en este momento.";
                 return RedirectToAction("Index");
             }
 
@@ -370,6 +377,7 @@ namespace control_notas_cit.Controllers
 
             if (asistenciasCelula.Count > 0)
             {
+                TempData["message"] = "No se pueden enviar asistencias en este momento.";
                 return RedirectToAction("Index");
             }
 

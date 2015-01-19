@@ -36,8 +36,7 @@
         @Html.ActionLink("Celulas", "Celulas", "Admin", new { id = @Model.ProyectoID }, new { @class = "btn btn-primary pull-right", style = "margin-right:8px;" })
         @if(calendarioFinalizado == true)
         { 
-            @Html.ActionLink("Exportar Notas CSV", "ExportarNotasCSV", "Admin", new { id_proyecto = @Model.ProyectoID }, new { @class = "btn btn-primary pull-right", style = "margin-right:8px;" })
-            @Html.ActionLink("Exportar Notas Excel", "ExportarNotasExcel", "Admin", new { id_proyecto = @Model.ProyectoID }, new { @class = "btn btn-primary pull-right", style = "margin-right:8px;" })
+            @Html.ActionLink("Exportar Notas", "ExportarNotasCSV", "Admin", new { id_proyecto = @Model.ProyectoID }, new { @class = "btn btn-primary pull-right", style = "margin-right:8px;" })
         }
     </div>
 </div>

@@ -23,6 +23,7 @@ namespace control_notas_cit.Controllers
         private IRepositorioGenerico<Proyecto> repoProyectos = null;
         private IRepositorioGenerico<ApplicationUser> repoUsers = null;
         private string profesor_rol_id;
+        private string admin_rol_id;
         
         public AdminController()
         {
@@ -35,6 +36,7 @@ namespace control_notas_cit.Controllers
 
             // Necesito el id del rol del profesor para usarlo en este controlador
             this.profesor_rol_id = (AppContext.Roles.Where(x => x.Name == "Profesor")).Select(y => y.Id).Single();
+            this.admin_rol_id = (AppContext.Roles.Where(x => x.Name == "Admin")).Select(y => y.Id).Single();
         }
 
         //
@@ -138,10 +140,41 @@ namespace control_notas_cit.Controllers
         }
 
         //
+        // GET: /Admin/ListaAdministradores/
+        public ActionResult ListaAdministradores()
+        {
+            var model = GetUserList(admin_rol_id);
+            return View(model);
+        }
+
+        //
+        // POST: /Admin/BorrarAdministrador/5
+        [HttpPost]
+        public async Task<ActionResult> BorrarAdministrador(string id)
+        {
+            if (id == null)
+            {
+                TempData["message"] = "No se pudo encontrar el usuario";
+                return RedirectToAction("ListaAdministradores");
+            }
+
+            var user = await UserManager.FindByIdAsync(id);
+
+            if (user == null)
+            {
+                TempData["message"] = "No se pudo encontrar el usuario";
+                return RedirectToAction("ListaAdministradores");
+            }
+            var result = await UserManager.DeleteAsync(user);
+
+            return RedirectToAction("ListaAdministradores");
+        }
+
+        //
         // GET: /Admin/ListaProfesores/
         public ActionResult ListaProfesores()
         {
-            List<ApplicationUser> model = repoUsers.SelectAll().Where(u => u.Roles.Select(r => r.RoleId).Contains(profesor_rol_id)).OrderBy(p => p.Nombre).ThenBy(p => p.Apellido).ToList();
+            var model = GetUserList(profesor_rol_id);
             return View(model);
         }
 
@@ -390,6 +423,7 @@ namespace control_notas_cit.Controllers
         {
             if(id_proyecto == null)
             {
+                TempData["message"] = "No se pudo encontrar el proyecto";
                 return RedirectToAction("Index");
             }
 
@@ -397,6 +431,7 @@ namespace control_notas_cit.Controllers
 
             if (proyecto == null)
             {
+                TempData["message"] = "No se pudo encontrar el proyecto";
                 return RedirectToAction("Index");
             }
 
@@ -431,48 +466,7 @@ namespace control_notas_cit.Controllers
                 return RedirectToAction("Index");
             }
         }
-
-        //
-        // GET: /Admin/ExportarNotasExcel/
-        public ActionResult ExportarNotasExcel(int? id_proyecto)
-        {
-            if(id_proyecto == null)
-            {
-                return RedirectToAction("Index");
-            }
-
-            var proyecto = repoProyectos.SelectById(id_proyecto);
-
-            if (proyecto == null)
-            {
-                return RedirectToAction("Index");
-            }
-
-            bool puedeDescargar = proyecto.Calendarios.Where(c => c.CalendarioID == proyecto.CalendarioActualID).Single().Finalizado == true;
-
-            if (puedeDescargar)
-            {            
-                var alumnos = proyecto.Celulas.SelectMany(c => c.Alumnos).ToList();
-
-                List<Data> datos = (from alumno in alumnos
-                                   select new Data
-                                   {
-                                       Nombre = alumno.Nombre,
-                                       Apellido = alumno.Apellido,
-                                       Cedula = alumno.Cedula,
-                                       Proyecto = alumno.Celula.Proyecto.Nombre,
-                                       Celula = alumno.Celula.Nombre,
-                                       Nota = (Math.Round((float)(alumno.Notas.Where(n => n.Calendario.CalendarioID == proyecto.CalendarioActualID).Single().Nota_Final))).ToString()
-                                   }).ToList();
-
-                return File(new System.Text.UTF8Encoding().GetBytes(ExportHelper.ConvertToExcel<Data>(datos)), "application/ms-excel", string.Format("ReporteNotas-{0}.xls", proyecto.Nombre)); 
-            }
-            else
-            {
-                return RedirectToAction("Index");
-            }
-        }
-
+        
         private List<SelectListItem> GetProyectosList()
         {
             List<SelectListItem> proyectos = repoProyectos.SelectAll()
@@ -496,6 +490,15 @@ namespace control_notas_cit.Controllers
                                                     }).ToList();
              
             return profesores;
+        }
+
+        private List<ApplicationUser> GetUserList(string role)
+        {
+            return repoUsers.SelectAll()
+                .Where(u => u.Roles.Select(r => r.RoleId).Contains(role))
+                .OrderBy(p => p.Nombre)
+                .ThenBy(p => p.Apellido)
+                .ToList();
         }
 
         // Estos métodos permiten acceder a la información de los usuarios, aunque también se pueden obtener a través de la tabla Users

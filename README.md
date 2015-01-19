@@ -144,4 +144,5 @@ http://prntscr.com/5261vo
 
 Users can successfully register using an email address that contains special characters (ie. +,-) as I added this line in the RegisterUser method: _userManager.UserValidator = new UserValidator(_userManager) { AllowOnlyAlphanumericUserNames = false };
 
+- Mejorar la forma de exportar las notas, tal vez usar la strategy pattern para cada algoritmo y asi poder incluir nuevos formatos luego, eliminar la duplicación en cada uno de ellos. Crear una forma de permitir que exporten especificamente las cosas que quieren
 ----------------------------------------------------------------------------------

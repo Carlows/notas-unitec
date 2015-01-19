@@ -90,6 +90,7 @@ namespace control_notas_cit.Controllers
 
             if (proyecto == null)
             {
+                TempData["message"] = "Proyecto no encontrado";
                 return RedirectToAction("Index");
             }
 
@@ -173,7 +174,7 @@ namespace control_notas_cit.Controllers
 
                 if (user == null)
                 {
-                    TempData["Message"] = "Usuario no encontrado";
+                    TempData["message"] = "Usuario no encontrado";
                     return RedirectToAction("Index");
                 }
 
@@ -181,7 +182,7 @@ namespace control_notas_cit.Controllers
 
                 if (proyecto == null)
                 {
-                    TempData["Message"] = "Proyecto no encontrado";
+                    TempData["message"] = "Proyecto no encontrado";
                     return RedirectToAction("Index");
                 }
 
@@ -940,7 +941,7 @@ namespace control_notas_cit.Controllers
         {
             if(id == null)
             {
-                TempData["msg"] = "No se envio ningún id";
+                TempData["message"] = "No se envio ningún id";
                 return RedirectToAction("ListaAlumnos");
             }
 
@@ -948,7 +949,7 @@ namespace control_notas_cit.Controllers
 
             if(alumno == null)
             {
-                TempData["msg"] = "No se encontro el alumno";
+                TempData["message"] = "No se encontro el alumno";
                 return RedirectToAction("ListaAlumnos");
             }
 
@@ -970,7 +971,7 @@ namespace control_notas_cit.Controllers
 
                 if(alumno == null)
                 {
-                    TempData["msg"] = "No se encontro el alumno";
+                    TempData["message"] = "No se encontro el alumno";
                     return RedirectToAction("ListaAlumnos");
                 }
 
@@ -978,7 +979,7 @@ namespace control_notas_cit.Controllers
 
                 if (celula == null)
                 {
-                    TempData["msg"] = "No se encontro la celula";
+                    TempData["message"] = "No se encontro la celula";
                     return RedirectToAction("ListaAlumnos");
                 }
 
@@ -986,7 +987,7 @@ namespace control_notas_cit.Controllers
                 repoAlumnos.Update(alumno);
                 repoAlumnos.Save();
 
-                TempData["msg"] = "El alumno fue guardado correctamente.";
+                TempData["message"] = "El alumno fue guardado correctamente.";
                 return RedirectToAction("ListaAlumnos");
             }
 
