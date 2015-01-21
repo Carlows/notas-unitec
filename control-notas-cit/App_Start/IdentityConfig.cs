@@ -36,7 +36,7 @@ namespace IdentitySample.Models
             // Configure validation logic for passwords
             manager.PasswordValidator = new PasswordValidator
             {
-                RequiredLength = 8,
+                RequiredLength = 6,
                 RequireNonLetterOrDigit = false,
                 RequireDigit = false,
                 RequireLowercase = true,
@@ -70,6 +70,7 @@ namespace IdentitySample.Models
     // This example shows you how to create a new database if the Model changes
     public class ApplicationDbInitializer : DropCreateDatabaseIfModelChanges<ApplicationDbContext>
     {
+        
         protected override void Seed(ApplicationDbContext context)
         {
             InitializeIdentityForEF(context);
@@ -277,6 +278,7 @@ namespace IdentitySample.Models
 
             db.SaveChanges();
         }
+        
     }
 
 

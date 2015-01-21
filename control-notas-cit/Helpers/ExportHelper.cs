@@ -1,5 +1,7 @@
-﻿using System;
+﻿using control_notas_cit.Models.Entidades;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Web;
@@ -8,61 +10,52 @@ using System.Web.UI.WebControls;
 
 namespace control_notas_cit.Helpers
 {
-    public class DataToConvert
-    {
-        public List<string> headers { get; set; }
-        public List<List<string>> dataLines { get; set; }
-    }
-
     public class ExportHelper
     {
-        private static string DataLine(List<string> line)
+        public static DataTable CreateDataTable(List<string> headers, List<DataAlumnoExport> alumnos)
         {
-            string dataline = "";
-            int count = 0;
-            foreach (string header in line)
+            DataTable dt = new DataTable();
+
+            foreach(String h1 in headers)
             {
-                if (count > 0)
-                    dataline += string.Format(",\"{0}\"", header);
-                else
-                    dataline += string.Format("\"{0}\"", header);
-                count++;
+                dt.Columns.Add(h1);
             }
 
-            return dataline;
-        }
-        
-        /*
-         * HEADER1, HEADER2, HEADER3
-         * DATALINE1,DATALINE2,DATALINE3,
-         * DATALINE1,DATALINE2,DATALINE3,         
-         * */
-        public static String ConvertToCSV(DataToConvert datos)
-        {
-            StringWriter sw = new StringWriter();
-
-            sw.WriteLine(DataLine(datos.headers));
-
-            foreach(List<string> line in datos.dataLines)
+            foreach(DataAlumnoExport alumno in alumnos)
             {
-                sw.WriteLine(DataLine(line));
+                DataRow dr = dt.NewRow();
+
+                int colcount = 0;
+                for (int index = 0; index < alumno.GetType().GetProperties().Count(); index++)
+                {
+                    var value = alumno.GetType().GetProperties()[index].GetValue(alumno, null);
+
+                    if(value != null)
+                    {
+                        dr[colcount] = value;
+                        colcount++;
+                    }
+                }
+
+                dt.Rows.Add(dr);
             }
 
-            return sw.ToString();
+            return dt;
         }
+    }
 
-        public static String ConvertToExcel<T>(List<T> datos)
-        {
-            var grid = new GridView();
-            grid.DataSource = datos;
-            grid.DataBind();
-            
-            StringWriter sw = new StringWriter();
-            HtmlTextWriter htw = new HtmlTextWriter(sw);
-
-            grid.RenderControl(htw);
-
-            return sw.ToString();
-        }
+    public class DataAlumnoExport
+    {
+        public string Nombre { get; set; }
+        public string Apellido { get; set; }
+        public string Cedula { get; set; }
+        public string Telefono { get; set; }
+        public string Email { get; set; }
+        public string Proyecto { get; set; }
+        public string Celula { get; set; }
+        public float? Nota_Minutas { get; set; }
+        public float? Nota_Asistencia { get; set; }
+        public float? Nota_EvaluacionFinal { get; set; }
+        public float? Nota_Final { get; set; }
     }
 }
