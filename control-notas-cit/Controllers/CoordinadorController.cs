@@ -11,6 +11,8 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using control_notas_cit.Models.ViewModels;
 using control_notas_cit.Models.Entidades;
 using System.IO;
+using LinqToExcel;
+using control_notas_cit.Helpers;
 
 namespace control_notas_cit.Controllers
 {
@@ -153,6 +155,14 @@ namespace control_notas_cit.Controllers
         // GET: /Coordinador/AgregarAlumno/
         public ActionResult AgregarAlumno()
         {
+            var calendario = GetCurrentCalendario();
+
+            if ((bool)calendario.Finalizado || (bool)calendario.IsLastWeek)
+            {
+                TempData["message"] = "Debes iniciar un nuevo calendario para agregar alumnos";
+                return RedirectToAction("ListaAlumnos");
+            }
+
             return View();
         }
 
@@ -163,23 +173,129 @@ namespace control_notas_cit.Controllers
         {
             if (ModelState.IsValid)
             {
-                Alumno alumno = new Alumno()
-                {
-                    Nombre = model.Nombre,
-                    Apellido = model.Apellido,
-                    Cedula = model.Cedula,
-                    Telefono = model.Telefono,
-                    Email = model.Email,
-                    Celula = GetCurrentCelula()
-                };
+                var celula = GetCurrentCelula();
+                var alumnoExistente = celula.Alumnos.Where(a => a.Cedula == model.Cedula).SingleOrDefault();
 
-                repoAlumnos.Insert(alumno);
-                repoAlumnos.Save();
+                if (alumnoExistente == null)
+                {
+                    Alumno alumno = new Alumno()
+                    {
+                        Nombre = model.Nombre,
+                        Apellido = model.Apellido,
+                        Cedula = ModelHelpers.LimpiarPuntos(model.Cedula),
+                        Telefono = model.Telefono,
+                        Email = model.Email,
+                        Celula = GetCurrentCelula()
+                    };
+
+                    repoAlumnos.Insert(alumno);
+                    repoAlumnos.Save();
+                }
+                else
+                {
+                    TempData["message"] = "Cedula duplicada, no se agregó el alumno.";
+                }
 
                 return RedirectToAction("ListaAlumnos");
             }
 
             return View(model);
+        }
+
+        public ActionResult AgregarAlumnos()
+        {
+            var calendario = GetCurrentCalendario();
+
+            if ((bool)calendario.Finalizado || (bool)calendario.IsLastWeek)
+            {
+                TempData["message"] = "Debes iniciar un nuevo calendario para agregar alumnos";
+                return RedirectToAction("ListaAlumnos");
+            }
+
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult AgregarAlumnos(HttpPostedFileBase file)
+        {
+            if (file != null && file.ContentLength > 0)
+            {
+                string extension = Path.GetExtension(file.FileName);
+                if (extension.Equals(".xls") || extension.Equals(".xlsx") || extension.Equals(".csv"))
+                {
+                    try
+                    {
+                        // upload the file
+                        string fileName = string.Format("Excel-{0:dd-MM-yyyy-HH-mm-ss}{1}", DateTime.Now, extension);
+                        string path = Path.Combine(Server.MapPath("~/ExcelTemp"), fileName);
+                        file.SaveAs(path);
+
+                        // get the file
+                        var excel = new ExcelQueryFactory(path);
+                        var alumnos = excel.Worksheet<AlumnoViewModel>().ToList();
+
+                        // delete the file
+                        if (System.IO.File.Exists(path))
+                        {
+                            System.IO.File.Delete(path);
+                        }
+
+                        var celula = GetCurrentCelula();
+                        var calendario = GetCurrentCalendario();
+
+                        // send or do something with data
+                        foreach(AlumnoViewModel al in alumnos)
+                        {
+                            var alumnoExistente = celula.Alumnos.Where(a => a.Cedula == al.Cedula).SingleOrDefault();
+
+                            if (alumnoExistente == null)
+                            {
+                                Alumno alumno = new Alumno
+                                {
+                                    Nombre = al.Nombre,
+                                    Apellido = al.Apellido,
+                                    Cedula = ModelHelpers.LimpiarPuntos(al.Cedula),
+                                    Email = al.Email,
+                                    Telefono = al.Telefono,
+                                    Celula = celula
+                                };
+
+                                int numeroSemanaActual = calendario.Semanas.Where(s => s.SemanaID == calendario.SemanaActualID).Select(c => c.NumeroSemana).SingleOrDefault();
+                                for (int index = 1; index <= (numeroSemanaActual - 1); index++)
+                                {
+                                    var semana = calendario.Semanas.Where(s => s.NumeroSemana == index).SingleOrDefault();
+
+                                    Asistencia asistencia = new Asistencia()
+                                    {
+                                        Alumno = alumno,
+                                        Semana = semana,
+                                        Celula = celula
+                                    };
+
+                                    repoAsistencias.Insert(asistencia);
+                                }
+
+                                repoAlumnos.Insert(alumno);
+                            }
+                        }
+
+                        repoAlumnos.Save();
+                        repoAsistencias.Save();
+
+                        return RedirectToAction("ListaAlumnos");
+                    }
+                    catch (Exception ex)
+                    {
+                        ViewBag.Message = "ERROR:" + ex.Message.ToString();
+                    }
+                }
+            }
+            else
+            {
+                ViewBag.Message = "Debes especificar algún archivo.";
+            }
+
+            return View();
         }
 
         //

@@ -13,6 +13,7 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using System.Threading.Tasks;
 using Microsoft.Owin;
 using control_notas_cit.Helpers;
+using System.Data;
 
 namespace control_notas_cit.Controllers
 {
@@ -435,36 +436,100 @@ namespace control_notas_cit.Controllers
                 return RedirectToAction("Index");
             }
 
-            bool puedeDescargar = proyecto.Calendarios.Where(c => c.CalendarioID == proyecto.CalendarioActualID).Single().Finalizado == true;
+            var currCalendario = proyecto.Calendarios.Where(c => c.CalendarioID == proyecto.CalendarioActualID)
+                .SingleOrDefault();
+            bool puedeDescargar = currCalendario != null ? currCalendario.Finalizado == true : false;
 
             if(puedeDescargar)
             {
-                DataToConvert data = new DataToConvert();
+                var headers = new List<string> { "Nombre", "Apellido", "Cedula", "Telefono", "Email", "Proyecto", "Celula", "Nota Final" };
+                var alumnosData = proyecto.Celulas.SelectMany(c => c.Alumnos)
+                    .Where(a => a.Notas.Where(n => n.Calendario.CalendarioID == currCalendario.CalendarioID).SingleOrDefault() != null)
+                                    .Select(alumno => new DataAlumnoExport
+                                    {
+                                        Nombre = alumno.Nombre,
+                                        Apellido = alumno.Apellido,
+                                        Cedula = alumno.Cedula,
+                                        Email = alumno.Email,
+                                        Telefono = alumno.Telefono,
+                                        Proyecto = alumno.Celula.Proyecto.Nombre,
+                                        Celula = alumno.Celula.Nombre,
+                                        Nota_Final = (float)(Math.Round((float)(alumno.Notas.Where(n => n.Calendario.CalendarioID == proyecto.CalendarioActualID).SingleOrDefault().Nota_Final)))
+                                    }).ToList();
 
-                data.headers = new List<string> { "Nombre", "Apellido", "Cedula", "Proyecto", "Celula", "Nota Final" };
+                DataTable data = ExportHelper.CreateDataTable(headers, alumnosData);
 
-                var alumnos = proyecto.Celulas.SelectMany(c => c.Alumnos).ToList();
-                
-
-                List<List<string>> alumnosString = (from alumno in alumnos
-                                   select new List<string>
-                                   {
-                                       alumno.Nombre, 
-                                       alumno.Apellido, 
-                                       alumno.Cedula, 
-                                       alumno.Celula.Proyecto.Nombre, 
-                                       alumno.Celula.Nombre, 
-                                       (Math.Round((float)(alumno.Notas.Where(n => n.Calendario.CalendarioID == proyecto.CalendarioActualID).Single().Nota_Final))).ToString()
-                                   }.ToList()).ToList();
-
-                data.dataLines = alumnosString;
-
-                return File(new System.Text.UTF8Encoding().GetBytes(ExportHelper.ConvertToCSV(data)), "text/csv", string.Format("ReporteNotas-{0}.csv", proyecto.Nombre)); 
+                return new CsvActionResult(data) { FileDownloadName = string.Format("NotasProyectos-{0:dd-MM-yyyy-HH-mm-ss}.csv", DateTime.Now) };             
             }
             else
             {
+                TempData["message"] = "No puedes descargar el archivo";
                 return RedirectToAction("Index");
             }
+        }
+
+        public ActionResult ExportarAsistenciasCSV(int? id_proyecto)
+        {
+            if(id_proyecto == null)
+            {
+                TempData["message"] = "No se encontro el proyecto";
+                return RedirectToAction("Index");
+            }
+
+            var proyecto = repoProyectos.SelectById(id_proyecto);
+
+            if (proyecto == null)
+            {
+                TempData["message"] = "No se pudo encontrar el proyecto";
+                return RedirectToAction("Index");
+            }
+
+            var currCalendario = proyecto.Calendarios.Where(c => c.CalendarioID == proyecto.CalendarioActualID)
+                .SingleOrDefault();
+
+            if(currCalendario == null)
+            {
+                TempData["message"] = "El proyecto no cuenta con ningun calendario asignado";
+                return RedirectToAction("Index");
+            }
+
+            var semanaActual = currCalendario.Semanas.Where(s => s.SemanaID == currCalendario.SemanaActualID).SingleOrDefault();
+
+            if (semanaActual == null)
+            {
+                TempData["message"] = "El calendario no tiene una semana asignada";
+                return RedirectToAction("Index");
+            }
+
+            var nSemanas = semanaActual.NumeroSemana < 12 ? (semanaActual.NumeroSemana - 1) : semanaActual.NumeroSemana;
+
+            if(nSemanas == 0)
+            {
+                TempData["message"] = "No se han enviado asistencias";
+                return RedirectToAction("Index");
+            }
+
+            var headers = new List<string> { "Nombre", "Apellido", "Cedula", "Proyecto" };
+
+            for(int index = 1; index <= nSemanas; index++)
+            {
+                headers.Add(String.Format("Semana {0}", index));
+            }
+
+            var alumnosData = proyecto.Celulas.SelectMany(c => c.Alumnos)
+                                    .Select(a => new DataAsistencias
+                                    {
+                                        Nombre = a.Nombre,
+                                        Apellido = a.Apellido,
+                                        Cedula = a.Cedula,
+                                        Proyecto = proyecto.Nombre,
+                                        Asistencias = a.Asistencias.Where(p => p.Semana.Calendario.CalendarioID == currCalendario.CalendarioID)
+                                                        .OrderBy(asistencia => asistencia.Semana.NumeroSemana).ToList()
+                                    }).ToList();
+
+            DataTable data = ExportHelper.CreateAsistenciasDataTable(headers, alumnosData, nSemanas);
+
+            return new CsvActionResult(data) { FileDownloadName = string.Format("AsistenciaProyectos-{0:dd-MM-yyyy-HH-mm-ss}-Semana{1}.csv", DateTime.Now, nSemanas) };             
         }
         
         private List<SelectListItem> GetProyectosList()
@@ -527,16 +592,6 @@ namespace control_notas_cit.Controllers
             {
                 _roleManager = value;
             }
-        }
-
-        struct Data
-        {
-            public string Nombre { get; set; }
-            public string Apellido { get; set; }
-            public string Cedula { get; set; }
-            public string Proyecto { get; set; }
-            public string Celula { get; set; }
-            public string Nota { get; set; }
         }
     }
 }

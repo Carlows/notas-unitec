@@ -10,6 +10,15 @@
 @section sidebar{
     @Html.Partial("_SidebarProfesorPartialView")
 }
+
+@if (TempData.Count() > 0)
+{
+    <div class="alert alert-error">
+        <button type="button" class="close" data-dismiss="alert">×</button>
+        <strong>Error</strong> @TempData["message"]
+    </div>
+}
+
 <div class="row-fluid">
     <!-- Last Week -->
     @if (Model.Calendario != null && Model.Calendario.IsLastWeek == true && Model.Calendario.Finalizado == false)

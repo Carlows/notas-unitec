@@ -9,51 +9,34 @@
     @Html.Partial("_SidebarProfesorPartialView")
 }
 
+@if (TempData.Count() > 0)
+{
+    <div class="alert alert-error">
+        <button type="button" class="close" data-dismiss="alert">×</button>
+        <strong>Error</strong> @TempData["message"]
+    </div>
+}
+
 <div class="box span8">
     <div class="box-header" data-original-title="">
         <h2><i class="halflings-icon edit"></i><span class="break"></span> Notas finales</h2>
     </div>
     <div class="box-content">
         <fieldset>
-            <button id="datos">RELLENA LOS CUADRITOS</button>
-            @using (Html.BeginForm("CargarNotasFinales", "Profesor", FormMethod.Post, new { @class = "form-horizontal" }))
+            @using (Html.BeginForm("CargarNotasFinales", "Profesor", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
             {
-                <div class="container-fluid">
-                    @Html.ValidationSummary(true)
-                </div>
-                
-                for (int x = 0; x < Model.Alumnos.Count; x++)
-                {
-                 <div class="control-group">
-                    <label class="control-label">@Model.Alumnos[x].Nombre @Model.Alumnos[x].Apellido</label>
-                    <div class="controls">      
-                        @Html.Hidden("Notas[" + x + "].ID", Model.Alumnos[x].AlumnoID)
-                        @Html.TextBoxFor(model => model.Notas[x].Nota, new { @class = "rellename" })
-                    </div>
-
-                </div>
-                }         
+                <label for="file">Subir archivo:</label>
+                <input type="file" name="file" id="file" />
 
                 <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">Aceptar</button>
-                    @Html.ActionLink("Cancelar", "ListaAlumnos", null, new { @class = "btn" })
+                    <button type="submit" class="btn btn-primary">Cargar</button>
+                    @Html.ActionLink("Cancelar", "Index", null, new { @class = "btn" })
                 </div>
             }
         </fieldset>
     </div>
 </div>
 
-@section scripts{
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $("#datos").click(function () {
-                $(".rellename").each(function () {
-                    $(this).val("" + Math.floor(Math.random() * 5));
-                });
-            });
-        });
-    </script>
-}
 
 
 

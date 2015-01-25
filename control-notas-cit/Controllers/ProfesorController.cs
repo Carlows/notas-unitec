@@ -13,6 +13,8 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using System.Threading.Tasks;
 using Microsoft.Owin;
 using control_notas_cit.Helpers;
+using System.IO;
+using LinqToExcel;
 
 namespace control_notas_cit.Controllers
 {
@@ -386,71 +388,107 @@ namespace control_notas_cit.Controllers
         {
             if (GetCurrentCalendario().IsLastWeek != true || GetCurrentCalendario().Finalizado == true)
             {
+                TempData["message"] = "No puedes cargar las notas finales hasta el final del calendario";
                 return RedirectToAction("Index");
             }
-
-            var model = new CargarNotasViewModel()
-            {
-                Alumnos = GetCurrentProyecto().Celulas.SelectMany(c => c.Alumnos).ToList()
-            };
-
-            return View(model);
+          
+            return View();
         }
 
-        //
-        // POST: /Profesor/CargarNotasFinales/
         [HttpPost]
-        public ActionResult CargarNotasFinales(CargarNotasViewModel model)
+        public ActionResult CargarNotasFinales(HttpPostedFileBase file)
         {
-            model.Alumnos = GetCurrentProyecto().Celulas.SelectMany(c => c.Alumnos).ToList();
-            var calendario = GetCurrentCalendario();
-
-            if (ModelState.IsValid)
+            if (file != null && file.ContentLength > 0)
             {
-                foreach (ID_Alumno_Nota data in model.Notas)
+                string extension = Path.GetExtension(file.FileName);
+                if (extension.Equals(".xls") || extension.Equals(".xlsx") || extension.Equals(".csv"))
                 {
-                    var alumno = repoAlumnos.SelectById(data.ID);
-
-                    if (alumno == null)
+                    try
                     {
-                        ModelState.AddModelError("", "No se pudo encontrar el alumno");
+                        // upload the file
+                        string fileName = string.Format("Excel-{0:dd-MM-yyyy-HH-mm-ss}{1}", DateTime.Now, extension);
+                        string path = Path.Combine(Server.MapPath("~/ExcelTemp"), fileName);
+                        file.SaveAs(path);
+
+                        // get the file
+                        var excel = new ExcelQueryFactory(path);
+                        var notas = excel.Worksheet<ImportNotasFinales>().ToList();
+                        var notasDistinct = notas.GroupBy(n => n.Cedula).Select(x => x.First()).ToList();
+
+                        // delete the file
+                        if (System.IO.File.Exists(path))
+                        {
+                            System.IO.File.Delete(path);
+                        }
+
+                        var proyecto = GetCurrentProyecto();
+                        var calendario = GetCurrentCalendario();
+
+                        var alumnosExistentes = proyecto.Celulas.SelectMany(c => c.Alumnos).Count();
+                        if (notasDistinct.Count == alumnosExistentes)
+                        {
+                            // send or do something with data
+                            foreach (ImportNotasFinales row in notas)
+                            {
+                                var alumno = proyecto.Celulas.SelectMany(a => a.Alumnos)
+                                    .Where(a => a.Cedula == ModelHelpers.LimpiarPuntos(row.Cedula))
+                                    .SingleOrDefault();
+
+                                if (alumno == null)
+                                {
+                                    TempData["message"] = "Debes incluir las notas de todos los alumnos del proyecto";
+                                    return View();
+                                }
+
+                                var nota = alumno.Notas.Where(n => n.Calendario.CalendarioID == calendario.CalendarioID)
+                                    .SingleOrDefault();
+                                
+                                if (nota != null)
+                                {
+                                    if (row.Nota <= calendario.Notas_Evaluacion_Final_Valor)
+                                    {
+                                        nota.Nota_EvaluacionFinal = row.Nota;
+                                        nota.Nota_Final = nota.Nota_Minutas + nota.Nota_Asistencia + nota.Nota_EvaluacionFinal;
+
+                                        repoNotas.Update(nota);
+                                    }
+                                    else
+                                    {
+                                        TempData["message"] = string.Format("Todas las notas deben estar comprendidas entre 0 y {0}", calendario.Notas_Evaluacion_Final_Valor);
+                                        return View();
+                                    }
+                                }
+                            }
+
+                            repoNotas.Save();
+
+                            calendario.Finalizado = true;
+
+                            repoCalendarios.Update(calendario);
+                            repoCalendarios.Save();
+                        }
+                        else
+                        {
+                            TempData["message"] = "Debes incluir las notas de todos los alumnos del proyecto";
+                        }
+
+                        return RedirectToAction("Index");
                     }
-
-                    var nota = alumno.Notas.Where(n => n.Calendario.CalendarioID == GetCurrentCalendario().CalendarioID).Single();
-
-                    if (nota == null)
+                    catch (Exception ex)
                     {
-                        ModelState.AddModelError("", "No se pudo encontrar la nota");
-                    }
-
-
-                    if (data.Nota <= calendario.Notas_Evaluacion_Final_Valor)
-                    {
-                        nota.Nota_EvaluacionFinal = data.Nota;
-                        nota.Nota_Final = nota.Nota_Minutas + nota.Nota_Asistencia + nota.Nota_EvaluacionFinal;
-
-                        repoNotas.Update(nota);
-                    }
-                    else
-                    {
-                        ModelState.AddModelError("", string.Format("Por favor, todas las notas deben estar comprendidas entre 0 y {0}", calendario.Notas_Evaluacion_Final_Valor));
-                        return View(model);
+                        ViewBag.Message = "ERROR:" + ex.Message.ToString();
+                        return RedirectToAction("Index");
                     }
                 }
-
-                repoNotas.Save();
-
-                calendario.Finalizado = true;
-
-                repoCalendarios.Update(calendario);
-                repoCalendarios.Save();
-
-                return RedirectToAction("Index");
+            }
+            else
+            {
+                ViewBag.Message = "Debes especificar algún archivo.";
             }
 
-            return View(model);
+            return View();
         }
-
+        
         //
         // GET: /Profesor/Celulas/
         public ActionResult Celulas()
@@ -777,6 +815,7 @@ namespace control_notas_cit.Controllers
 
             if (calendario == null)
             {
+                TempData["message"] = "No hay abierto ningún calendario";
                 return RedirectToAction("Index");
             }
 
@@ -882,6 +921,7 @@ namespace control_notas_cit.Controllers
 
             foreach (Alumno alumno in alumnos)
             {
+                // does this follow an order? wwat!
                 alumno.Asistencias = alumno.Asistencias.Where(a => a.Semana.Calendario.CalendarioID == GetCurrentCalendario().CalendarioID).ToList();
                 alumnosFiltrados.Add(alumno);
             }
@@ -904,21 +944,30 @@ namespace control_notas_cit.Controllers
 
             foreach (Alumno alumno in alumnos)
             {
-                var nota = alumno.Notas.Where(n => n.Calendario.CalendarioID == GetCurrentCalendario().CalendarioID).Single();
+                var nota = alumno.Notas.Where(n => n.Calendario.CalendarioID == GetCurrentCalendario().CalendarioID).SingleOrDefault();
 
-                NotaViewModel alnota = new NotaViewModel()
-                {
-                    Nota_Asistencia = ((float)nota.Nota_Asistencia).ToString("0.00"),
-                    Nota_Minutas = ((float)nota.Nota_Minutas).ToString("0.00"),
-                    Nota_EvaluacionFinal = ((float)nota.Nota_EvaluacionFinal).ToString("0.00"),
-                    Nota_Final = (Math.Round((float)nota.Nota_Final).ToString())
-                };
                 AlumnoNotaViewModel a = new AlumnoNotaViewModel()
                 {
                     Nombre = alumno.Nombre,
-                    Apellido = alumno.Apellido,
-                    Nota = alnota
+                    Apellido = alumno.Apellido
                 };
+
+                if (nota != null)
+                {
+                    NotaViewModel alnota = new NotaViewModel()
+                    {
+                        Nota_Asistencia = ((float)nota.Nota_Asistencia).ToString("0.00"),
+                        Nota_Minutas = ((float)nota.Nota_Minutas).ToString("0.00"),
+                        Nota_EvaluacionFinal = ((float)nota.Nota_EvaluacionFinal).ToString("0.00"),
+                        Nota_Final = (Math.Round((float)nota.Nota_Final).ToString())
+                    };
+
+                    a.Nota = alnota;
+                }
+                else
+                {
+                    a.Nota = new NotaViewModel { Nota_Asistencia = "", Nota_EvaluacionFinal = "", Nota_Final = "", Nota_Minutas = "" };
+                }
 
                 model.Add(a);
             }

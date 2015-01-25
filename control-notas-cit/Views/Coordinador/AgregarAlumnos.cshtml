@@ -1,0 +1,30 @@
+﻿
+@{
+    ViewBag.Title = "Agregar Alumnos";
+    ViewBag.Seccion = "Coordinador";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section sidebar{
+    @Html.Partial("_SidebarCoordinadorPartialView")
+}
+
+<div class="box span8">
+    <div class="box-header" data-original-title="">
+        <h2><i class="halflings-icon edit"></i><span class="break"></span> Agregar Alumnos.</h2>
+    </div>
+    <div class="box-content">
+        <fieldset>
+            @using (Html.BeginForm("AgregarAlumnos", "Coordinador", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
+            {
+                <label for="file">Subir archivo:</label>
+                <input type="file" name="file" id="file" />
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Cargar</button>
+                    @Html.ActionLink("Cancelar", "ListaAlumnos", null, new { @class = "btn" })
+                </div>
+            }
+        </fieldset>
+    </div>
+</div>
