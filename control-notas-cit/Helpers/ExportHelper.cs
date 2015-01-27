@@ -96,6 +96,6 @@ namespace control_notas_cit.Helpers
         public float? Nota_Minutas { get; set; }
         public float? Nota_Asistencia { get; set; }
         public float? Nota_EvaluacionFinal { get; set; }
-        public float? Nota_Final { get; set; }
+        public string Nota_Final { get; set; }
     }
 }

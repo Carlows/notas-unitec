@@ -51,6 +51,12 @@
     <Reference Include="EntityFramework.SqlServer">
       <HintPath>..\packages\EntityFramework.6.1.2-beta1\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
+    <Reference Include="LinqToExcel">
+      <HintPath>..\packages\LinqToExcel.1.10.1\lib\LinqToExcel.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.AspNet.Identity.Core">
       <HintPath>..\packages\Microsoft.AspNet.Identity.Core.2.1.0\lib\net45\Microsoft.AspNet.Identity.Core.dll</HintPath>
     </Reference>
@@ -97,6 +103,15 @@
     </Reference>
     <Reference Include="Owin">
       <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
+    </Reference>
+    <Reference Include="Remotion">
+      <HintPath>..\packages\LinqToExcel.1.10.1\lib\Remotion.dll</HintPath>
+    </Reference>
+    <Reference Include="Remotion.Data.Linq">
+      <HintPath>..\packages\LinqToExcel.1.10.1\lib\Remotion.Data.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="Remotion.Interfaces">
+      <HintPath>..\packages\LinqToExcel.1.10.1\lib\Remotion.Interfaces.dll</HintPath>
     </Reference>
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Net.Http.WebRequest" />
@@ -339,9 +354,25 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\CsvActionResult.cs" />
     <Compile Include="Helpers\ExportHelper.cs" />
     <Compile Include="Helpers\HelperGetterMethods.cs" />
     <Compile Include="Helpers\HelperMethods.cs" />
+    <Compile Include="Helpers\ImportHelpers.cs" />
+    <Compile Include="Helpers\ModelHelpers.cs" />
+    <Compile Include="Migrations\201411260435255_DropDB.cs" />
+    <Compile Include="Migrations\201411260435255_DropDB.Designer.cs">
+      <DependentUpon>201411260435255_DropDB.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201411260444569_DropDB2.cs" />
+    <Compile Include="Migrations\201411260444569_DropDB2.Designer.cs">
+      <DependentUpon>201411260444569_DropDB2.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201411271351305_4WeeksMigration.cs" />
+    <Compile Include="Migrations\201411271351305_4WeeksMigration.Designer.cs">
+      <DependentUpon>201411271351305_4WeeksMigration.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Entidades\Entidades.cs" />
     <Compile Include="Models\Repositorios\IRepositorioGenerico.cs" />
     <Compile Include="Models\Repositorios\RepositorioGenerico.cs" />
@@ -403,6 +434,8 @@
     <Content Include="Views\Account\ChangePassword.cshtml" />
     <Content Include="Views\Profesor\ListaAlumnos.cshtml" />
     <Content Include="Views\Profesor\EditarAlumno.cshtml" />
+    <Content Include="Views\Admin\ListaAdministradores.cshtml" />
+    <Content Include="Views\Coordinador\AgregarAlumnos.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -412,9 +445,21 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="ExcelTemp\" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201411260435255_DropDB.resx">
+      <DependentUpon>201411260435255_DropDB.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201411260444569_DropDB2.resx">
+      <DependentUpon>201411260444569_DropDB2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201411271351305_4WeeksMigration.resx">
+      <DependentUpon>201411271351305_4WeeksMigration.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

@@ -57,6 +57,7 @@ namespace control_notas_cit.Models.ViewModels
     {
         public Semana Semana { get; set; }
         public List<Minuta> MinutasPorAprobar { get; set; }
+        public List<Alumno> AlumnosAsistencias { get; set; }
     }
 
     public class CelulaViewModel

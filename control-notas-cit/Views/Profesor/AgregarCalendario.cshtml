@@ -17,6 +17,7 @@
         </div>
         <div class="box-content">
             <fieldset>
+                <label>Ojo, si añades un nuevo calendario no podrás recuperar los datos del calendario pasado.</label>
                 @using (Html.BeginForm("AgregarCalendario", "Profesor", FormMethod.Post, new { @class = "form-horizontal" }))
                 {
                     @Html.ValidationSummary()

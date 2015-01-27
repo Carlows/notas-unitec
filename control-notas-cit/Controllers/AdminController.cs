@@ -454,7 +454,7 @@ namespace control_notas_cit.Controllers
                                         Telefono = alumno.Telefono,
                                         Proyecto = alumno.Celula.Proyecto.Nombre,
                                         Celula = alumno.Celula.Nombre,
-                                        Nota_Final = (float)(Math.Round((float)(alumno.Notas.Where(n => n.Calendario.CalendarioID == proyecto.CalendarioActualID).SingleOrDefault().Nota_Final)))
+                                        Nota_Final = ((float)(alumno.Notas.Where(n => n.Calendario.CalendarioID == proyecto.CalendarioActualID).SingleOrDefault().Nota_Final)).ToString("0.00")
                                     }).ToList();
 
                 DataTable data = ExportHelper.CreateDataTable(headers, alumnosData);

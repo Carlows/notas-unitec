@@ -267,6 +267,11 @@ namespace control_notas_cit.Controllers
         public ActionResult FinalizarSemana(int id)
         {
             Semana semana = repoSemanas.SelectById(id);
+            var alumnosSinAsistencias = GetCurrentProyecto()
+                .Celulas
+                .SelectMany(x => x.Alumnos)
+                .Where(a => a.Asistencias.Where(c => c.Semana.SemanaID == semana.SemanaID).SingleOrDefault() == null)
+                .ToList();
 
             if (semana.SemanaID != GetCurrentSemana().SemanaID)
             {
@@ -276,7 +281,8 @@ namespace control_notas_cit.Controllers
             var model = new FinalizarSemanaViewModel()
             {
                 Semana = semana,
-                MinutasPorAprobar = semana.Minutas.Where(m => m.Aprobada == false).ToList()
+                MinutasPorAprobar = semana.Minutas.Where(m => m.Aprobada == false).ToList(),
+                AlumnosAsistencias = alumnosSinAsistencias
             };
 
             if (model == null)
@@ -309,20 +315,23 @@ namespace control_notas_cit.Controllers
 
                     foreach (Celula celula in celulas)
                     {
-                        List<Asistencia> asistenciasSemanaActual = celula.Asistencias.Where(a => a.Semana.SemanaID == semana.SemanaID).ToList();
+                        var asistenciasSemanaActual = celula.Asistencias.Where(a => a.Semana.SemanaID == semana.SemanaID).ToList();
 
-                        if (asistenciasSemanaActual.Count == 0)
+                        if (asistenciasSemanaActual.Count != celula.Alumnos.Count)
                         {
                             foreach (Alumno alumno in celula.Alumnos)
                             {
-                                Asistencia asistencia = new Asistencia()
+                                if (alumno.Asistencias.Where(a => a.Semana.SemanaID == semana.SemanaID).Count() == 0)
                                 {
-                                    Alumno = alumno,
-                                    Semana = semana,
-                                    Celula = celula
-                                };
+                                    Asistencia asistencia = new Asistencia()
+                                    {
+                                        Alumno = alumno,
+                                        Semana = semana,
+                                        Celula = celula
+                                    };
 
-                                repoAsistencias.Insert(asistencia);
+                                    repoAsistencias.Insert(asistencia);
+                                }
                             }
 
                             repoAsistencias.Save();
@@ -380,6 +389,34 @@ namespace control_notas_cit.Controllers
             }
 
             return View();
+        }
+
+        [HttpPost]
+        public ActionResult AsistenciaSemana(AsistenciaSemanaViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var semana = GetCurrentSemana();
+
+                foreach(int id_alumno in model.ID_Alumnos)
+                {
+                    var alumno = repoAlumnos.SelectById(id_alumno);
+
+                    Asistencia asistencia = new Asistencia()
+                    {
+                        Alumno = alumno,
+                        Semana = semana,
+                        Celula = alumno.Celula,
+                        Asistio = true
+                    };
+
+                    repoAsistencias.Insert(asistencia);
+                }
+
+                repoAsistencias.Save();
+            }
+
+            return Redirect(Request.UrlReferrer.ToString());
         }
 
         //
@@ -959,7 +996,7 @@ namespace control_notas_cit.Controllers
                         Nota_Asistencia = ((float)nota.Nota_Asistencia).ToString("0.00"),
                         Nota_Minutas = ((float)nota.Nota_Minutas).ToString("0.00"),
                         Nota_EvaluacionFinal = ((float)nota.Nota_EvaluacionFinal).ToString("0.00"),
-                        Nota_Final = (Math.Round((float)nota.Nota_Final).ToString())
+                        Nota_Final = ((float)nota.Nota_Final).ToString("0.00")
                     };
 
                     a.Nota = alnota;

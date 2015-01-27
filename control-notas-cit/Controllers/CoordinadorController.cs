@@ -173,8 +173,12 @@ namespace control_notas_cit.Controllers
         {
             if (ModelState.IsValid)
             {
+                var proyecto = GetCurrentProyecto();
                 var celula = GetCurrentCelula();
-                var alumnoExistente = celula.Alumnos.Where(a => a.Cedula == model.Cedula).SingleOrDefault();
+                var alumnoExistente = proyecto.Celulas
+                    .SelectMany(c => c.Alumnos)
+                    .Where(a => a.Cedula == model.Cedula)
+                    .SingleOrDefault();
 
                 if (alumnoExistente == null)
                 {
@@ -240,13 +244,17 @@ namespace control_notas_cit.Controllers
                             System.IO.File.Delete(path);
                         }
 
+                        var proyecto = GetCurrentProyecto();
                         var celula = GetCurrentCelula();
                         var calendario = GetCurrentCalendario();
 
                         // send or do something with data
                         foreach(AlumnoViewModel al in alumnos)
                         {
-                            var alumnoExistente = celula.Alumnos.Where(a => a.Cedula == al.Cedula).SingleOrDefault();
+                            var alumnoExistente = proyecto.Celulas
+                                .SelectMany(c => c.Alumnos)
+                                .Where(a => a.Cedula == al.Cedula)
+                                .SingleOrDefault();
 
                             if (alumnoExistente == null)
                             {
@@ -276,6 +284,10 @@ namespace control_notas_cit.Controllers
                                 }
 
                                 repoAlumnos.Insert(alumno);
+                            }
+                            else
+                            {
+                                TempData["message"] = "Algunos alumnos no fueron agregados, datos repetidos";
                             }
                         }
 
@@ -512,7 +524,6 @@ namespace control_notas_cit.Controllers
         {
             model.Alumnos = GetCurrentCelula().Alumnos;
 
-
             if (ModelState.IsValid)
             {
                 var celula = GetCurrentCelula();
@@ -566,8 +577,12 @@ namespace control_notas_cit.Controllers
         // Obtiene la celula
         private Celula GetCurrentCelula()
         {
-            // BUG
             return GetCurrentUser().Celula;
+        }
+
+        private Proyecto GetCurrentProyecto()
+        {
+            return GetCurrentUser().Celula.Proyecto;
         }
 
         // Obtiene el calendario o devuelve null si no existe ninguno
