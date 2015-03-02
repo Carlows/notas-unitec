@@ -1,24 +1,3 @@
-###Links de interes:
-
-- Carpeta personal de dropbox con contenido sobre C#, Jquery, ASP.Net, LINQ, etc
-  https://www.dropbox.com/sh/0dhg5tk897aqlrb/AACRkwcy_45ijSbVme1SE-Xua?dl=0
-  (Recomiendo descargar PRO ASP.Net MVC 5, Learning JQuery y LINQ In Action)
-
-- Sitio oficial de ASP.NET
-  http://asp.net/
-  (Recomiendo leer las secciones de ASP.NET MVC y Entity Framework) 
-
-- Sitio de preguntas y respuestas sobre cualquier tema de programación
-  http://stackoverflow.com/
-  (Leer el FAQ para principiantes antes de hacer cualquier pregunta, por lo general ya otra persona ha tenido el mismo problema,   asi que antes de abrir una pregunta, busca muy bien dentro de la página.)
-
-#### Angular JS
-
- - http://codewala.net/2014/05/28/learning-angularjs-with-examplespart-1/
-   Introduccion a AngularJS (El inglés no está muy bien escrito, pero se entiende bien).
-
-- https://www.dropbox.com/sh/i8gie2q379urpet/AAANSRvn7ZlKVNmvlt1ke6dsa?dl=0
-  Libro Pro AngularJS de Adam Freeman (de los mejores, para mi)
 -----------------------------------------------------------------------------------------------------------------
 
 #Centro de Innovación Tecnológica
