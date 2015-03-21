@@ -64,7 +64,7 @@ namespace control_notas_cit.Helpers
                 int index = 4;
                 foreach(Asistencia asistencia in alumno.Asistencias)
                 {
-                    dr[index] = (bool)asistencia.Asistio ? "asistio" : " ";
+                    dr[index] = (bool)asistencia.Asistio ? "asistio" : "---";
                     index++;
                 }
 
