@@ -17,7 +17,7 @@ using control_notas_cit.Helpers;
 namespace control_notas_cit.Controllers
 {
     [Authorize(Roles = "Coordinador")]
-    public class CoordinadorController : Controller
+    public class CoordinadorController : BaseController
     {
         private ApplicationDbContext AppContext;
         private IRepositorioGenerico<Celula> repoCelulas = null;

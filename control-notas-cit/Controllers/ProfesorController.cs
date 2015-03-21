@@ -19,7 +19,7 @@ using LinqToExcel;
 namespace control_notas_cit.Controllers
 {
     [Authorize(Roles = "Profesor")]
-    public class ProfesorController : Controller
+    public class ProfesorController : BaseController
     {
         private ApplicationDbContext AppContext;
         private IRepositorioGenerico<Celula> repoCelulas = null;
@@ -1166,32 +1166,5 @@ namespace control_notas_cit.Controllers
             return items;
         }
 
-        // Estos métodos permiten acceder a la información de los usuarios, aunque también se pueden obtener a través de la tabla Users
-        // Sin embargo, UserManager y RoleManager tienen métodos asincronicos mucho más optimizados
-        private ApplicationUserManager _userManager;
-        public ApplicationUserManager UserManager
-        {
-            get
-            {
-                return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
-            }
-            private set
-            {
-                _userManager = value;
-            }
-        }
-
-        private ApplicationRoleManager _roleManager;
-        public ApplicationRoleManager RoleManager
-        {
-            get
-            {
-                return _roleManager ?? HttpContext.GetOwinContext().Get<ApplicationRoleManager>();
-            }
-            private set
-            {
-                _roleManager = value;
-            }
-        }
     }
 }
