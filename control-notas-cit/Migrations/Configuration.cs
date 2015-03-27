@@ -7,6 +7,7 @@ namespace control_notas_cit.Migrations
     using Microsoft.AspNet.Identity;
     using Microsoft.AspNet.Identity.EntityFramework;
     using IdentitySample.Models;
+    using control_notas_cit.Models.Entidades;
 
     internal sealed class Configuration : DbMigrationsConfiguration<IdentitySample.Models.ApplicationDbContext>
     {

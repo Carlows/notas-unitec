@@ -389,9 +389,19 @@
       <DependentUpon>201411271351305_4WeeksMigration.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="Models\Entidades\Entidades.cs" />
+    <Compile Include="Models\Entidades\Alumno.cs" />
+    <Compile Include="Models\Entidades\ApplicationUser.cs" />
+    <Compile Include="Models\Entidades\Asistencia.cs" />
+    <Compile Include="Models\Entidades\Calendario.cs" />
+    <Compile Include="Models\Entidades\Celula.cs" />
+    <Compile Include="Models\Entidades\Minuta.cs" />
+    <Compile Include="Models\Entidades\Nota.cs" />
+    <Compile Include="Models\Entidades\Proyecto.cs" />
+    <Compile Include="Models\Entidades\Semana.cs" />
     <Compile Include="Models\Repositorios\IRepositorioGenerico.cs" />
     <Compile Include="Models\Repositorios\RepositorioGenerico.cs" />
+    <Compile Include="Models\Servicios\IUnitOfWork.cs" />
+    <Compile Include="Models\Servicios\UnitOfWork.cs" />
     <Compile Include="Models\ViewModels\AccountViewModels.cs" />
     <Compile Include="Models\ViewModels\AdminViewModel.cs" />
     <Compile Include="Models\IdentityModels.cs" />

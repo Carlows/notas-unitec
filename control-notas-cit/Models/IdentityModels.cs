@@ -11,25 +11,6 @@ using control_notas_cit.Migrations;
 
 namespace IdentitySample.Models
 {
-    public class ApplicationUser : IdentityUser
-    {
-        public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
-        {
-            // Note the authenticationType must match the one defined in CookieAuthenticationOptions.AuthenticationType
-            var userIdentity = await manager.CreateIdentityAsync(this, DefaultAuthenticationTypes.ApplicationCookie);
-            // Add custom user claims here
-            return userIdentity;
-        }
-
-        // Propiedades personalizadas del usuario
-        public string Nombre { get; set; }
-        public string Apellido { get; set; }
-        public string Cedula { get; set; }
-
-        public virtual Proyecto Proyecto { get; set; }
-        public virtual Celula Celula { get; set; }
-    }
-
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext()

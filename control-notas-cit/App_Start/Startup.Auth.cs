@@ -5,6 +5,7 @@ using Microsoft.Owin.Security.Cookies;
 using IdentitySample.Models;
 using Owin;
 using System;
+using control_notas_cit.Models.Entidades;
 
 namespace IdentitySample
 {

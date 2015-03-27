@@ -14,26 +14,23 @@ using System.Threading.Tasks;
 using Microsoft.Owin;
 using control_notas_cit.Helpers;
 using System.Data;
+using control_notas_cit.Models.Servicios;
 
 namespace control_notas_cit.Controllers
 {
     [Authorize(Roles = "Admin")]
     public class AdminController : BaseController
     {
-        private ApplicationDbContext AppContext;
-        private IRepositorioGenerico<Proyecto> repoProyectos = null;
-        private IRepositorioGenerico<ApplicationUser> repoUsers = null;
+        private readonly IUnitOfWork _uow;
+
         private string profesor_rol_id;
         private string admin_rol_id;
         
         public AdminController()
         {
             // Obtengo el contexto que OWIN creó al iniciar la aplicación
-            AppContext = ApplicationDbContext.GetDBContext();
-
-            // Se lo paso a mi repositorio
-            this.repoProyectos = new RepositorioGenerico<Proyecto>(AppContext);
-            this.repoUsers = new RepositorioGenerico<ApplicationUser>(AppContext);
+            var AppContext = ApplicationDbContext.GetDBContext();
+            _uow = new UnitOfWork(AppContext);
 
             // Necesito el id del rol del profesor para usarlo en este controlador
             this.profesor_rol_id = (AppContext.Roles.Where(x => x.Name == "Profesor")).Select(y => y.Id).Single();
@@ -44,7 +41,7 @@ namespace control_notas_cit.Controllers
         // GET: /Admin/
         public ActionResult Index()
         {
-            return View(repoProyectos.SelectAll());
+            return View(_uow.RepositorioProyectos.SelectAll());
         }
 
         //
@@ -77,8 +74,9 @@ namespace control_notas_cit.Controllers
                     Descripcion = model.Descripcion,
                     Profesores = profesores
                 };
-                repoProyectos.Insert(p);
-                repoProyectos.Save();
+                
+                _uow.RepositorioProyectos.Insert(p);
+                _uow.Save();
 
                 return RedirectToAction("Index");
             }
@@ -95,7 +93,7 @@ namespace control_notas_cit.Controllers
                 return RedirectToAction("Index");
             }
 
-            var proyecto = repoProyectos.SelectById(id);
+            var proyecto = _uow.RepositorioProyectos.SelectById(id);
 
             if( proyecto == null )
             {
@@ -120,7 +118,7 @@ namespace control_notas_cit.Controllers
         {
             if(ModelState.IsValid)
             {
-                var proyecto = repoProyectos.SelectById(model.Id);
+                var proyecto = _uow.RepositorioProyectos.SelectById(model.Id);
 
                 if(proyecto == null)
                 {
@@ -131,8 +129,8 @@ namespace control_notas_cit.Controllers
                 proyecto.Nombre = model.Nombre;
                 proyecto.Descripcion = model.Descripcion;
 
-                repoProyectos.Update(proyecto);
-                repoProyectos.Save();
+                _uow.RepositorioProyectos.Update(proyecto);
+                _uow.Save();
 
                 return RedirectToAction("Index");
             }
@@ -210,7 +208,7 @@ namespace control_notas_cit.Controllers
 
                 if (model.ProyectoID != null)
                 {
-                    Proyecto p = repoProyectos.SelectAll().Where(pr => pr.ProyectoID == model.ProyectoID).Single();
+                    Proyecto p = _uow.RepositorioProyectos.SelectAll().Where(pr => pr.ProyectoID == model.ProyectoID).Single();
                     profesor.Proyecto = p;
                 }
 
@@ -301,7 +299,7 @@ namespace control_notas_cit.Controllers
 
                 if (model.ProyectoID != null)
                 {
-                    user.Proyecto = repoProyectos.SelectAll().Where(p => p.ProyectoID == model.ProyectoID).Single();
+                    user.Proyecto = _uow.RepositorioProyectos.SelectAll().Where(p => p.ProyectoID == model.ProyectoID).Single();
                 }
                 else
                 {
@@ -315,8 +313,10 @@ namespace control_notas_cit.Controllers
                     ModelState.AddModelError("", result.Errors.First());
                     return View(model);
                 }
+
                 return RedirectToAction("ListaProfesores");
             }
+
             ModelState.AddModelError("", "Algo falló.");
             return View(model);
         }
@@ -353,7 +353,7 @@ namespace control_notas_cit.Controllers
                 return RedirectToAction("Index");
             }
 
-            var proyecto = repoProyectos.SelectById(id);
+            var proyecto = _uow.RepositorioProyectos.SelectById(id);
 
             if(proyecto == null)
             {
@@ -428,7 +428,7 @@ namespace control_notas_cit.Controllers
                 return RedirectToAction("Index");
             }
 
-            var proyecto = repoProyectos.SelectById(id_proyecto);
+            var proyecto = _uow.RepositorioProyectos.SelectById(id_proyecto);
 
             if (proyecto == null)
             {
@@ -476,7 +476,7 @@ namespace control_notas_cit.Controllers
                 return RedirectToAction("Index");
             }
 
-            var proyecto = repoProyectos.SelectById(id_proyecto);
+            var proyecto = _uow.RepositorioProyectos.SelectById(id_proyecto);
 
             if (proyecto == null)
             {
@@ -534,7 +534,7 @@ namespace control_notas_cit.Controllers
         
         private List<SelectListItem> GetProyectosList()
         {
-            List<SelectListItem> proyectos = repoProyectos.SelectAll()
+            List<SelectListItem> proyectos = _uow.RepositorioProyectos.SelectAll()
                 .Select(p => new SelectListItem()
                 {
                     Value = p.ProyectoID.ToString(),
@@ -547,7 +547,7 @@ namespace control_notas_cit.Controllers
 
         private List<SelectListItem> GetProfesoresList()
         {
-            List<SelectListItem> profesores = repoUsers.SelectAll().Where(x => x.Roles.Select(y => y.RoleId).Contains(profesor_rol_id) && x.Proyecto == null)
+            List<SelectListItem> profesores = _uow.RepositorioUsuarios.SelectAll().Where(x => x.Roles.Select(y => y.RoleId).Contains(profesor_rol_id) && x.Proyecto == null)
                                                     .Select(p => new SelectListItem()
                                                     {
                                                         Value = p.Email,
@@ -559,7 +559,7 @@ namespace control_notas_cit.Controllers
 
         private List<ApplicationUser> GetUserList(string role)
         {
-            return repoUsers.SelectAll()
+            return _uow.RepositorioUsuarios.SelectAll()
                 .Where(u => u.Roles.Select(r => r.RoleId).Contains(role))
                 .OrderBy(p => p.Nombre)
                 .ThenBy(p => p.Apellido)

@@ -13,38 +13,20 @@ using control_notas_cit.Models.Entidades;
 using System.IO;
 using LinqToExcel;
 using control_notas_cit.Helpers;
+using control_notas_cit.Models.Servicios;
 
 namespace control_notas_cit.Controllers
 {
     [Authorize(Roles = "Coordinador")]
     public class CoordinadorController : BaseController
     {
-        private ApplicationDbContext AppContext;
-        private IRepositorioGenerico<Celula> repoCelulas = null;
-        private IRepositorioGenerico<ApplicationUser> repoUsers = null;
-        private IRepositorioGenerico<Proyecto> repoProyectos = null;
-        private IRepositorioGenerico<Calendario> repoCalendarios = null;
-        private IRepositorioGenerico<Semana> repoSemanas = null;
-        private IRepositorioGenerico<IdentityRole> repoRoles = null;
-        private IRepositorioGenerico<Alumno> repoAlumnos = null;
-        private IRepositorioGenerico<Minuta> repoMinutas = null;
-        private IRepositorioGenerico<Asistencia> repoAsistencias = null;
+        private readonly IUnitOfWork _uow;
 
         public CoordinadorController()
         {
             // Obtengo el contexto que OWIN creó al iniciar la aplicación
-            AppContext = ApplicationDbContext.GetDBContext();
-
-            // Se lo paso a los repositorios
-            this.repoCelulas = new RepositorioGenerico<Celula>(AppContext);
-            this.repoUsers = new RepositorioGenerico<ApplicationUser>(AppContext);
-            this.repoProyectos = new RepositorioGenerico<Proyecto>(AppContext);
-            this.repoCalendarios = new RepositorioGenerico<Calendario>(AppContext);
-            this.repoSemanas = new RepositorioGenerico<Semana>(AppContext);
-            this.repoRoles = new RepositorioGenerico<IdentityRole>(AppContext);
-            this.repoAlumnos = new RepositorioGenerico<Alumno>(AppContext);
-            this.repoMinutas = new RepositorioGenerico<Minuta>(AppContext);
-            this.repoAsistencias = new RepositorioGenerico<Asistencia>(AppContext);
+            var AppContext = ApplicationDbContext.GetDBContext();
+            _uow = new UnitOfWork(AppContext);            
         }
 
         //
@@ -122,7 +104,7 @@ namespace control_notas_cit.Controllers
         {
             if (ModelState.IsValid)
             {
-                var celula = repoCelulas.SelectById(model.Id);
+                var celula = _uow.RepositorioCelulas.SelectById(model.Id);
 
                 if (celula == null)
                 {
@@ -133,8 +115,8 @@ namespace control_notas_cit.Controllers
                 celula.Nombre = model.Nombre;
                 celula.Descripcion = model.Descripcion;
 
-                repoCelulas.Update(celula);
-                repoCelulas.Save();
+                _uow.RepositorioCelulas.Update(celula);
+                _uow.Save();
 
                 return RedirectToAction("Index");
             }
@@ -192,8 +174,8 @@ namespace control_notas_cit.Controllers
                         Celula = GetCurrentCelula()
                     };
 
-                    repoAlumnos.Insert(alumno);
-                    repoAlumnos.Save();
+                    _uow.RepositorioAlumnos.Insert(alumno);
+                    _uow.Save();
                 }
                 else
                 {
@@ -280,10 +262,10 @@ namespace control_notas_cit.Controllers
                                         Celula = celula
                                     };
 
-                                    repoAsistencias.Insert(asistencia);
+                                    _uow.RepositorioAsistencias.Insert(asistencia);
                                 }
 
-                                repoAlumnos.Insert(alumno);
+                                _uow.RepositorioAlumnos.Insert(alumno);
                             }
                             else
                             {
@@ -291,8 +273,7 @@ namespace control_notas_cit.Controllers
                             }
                         }
 
-                        repoAlumnos.Save();
-                        repoAsistencias.Save();
+                        _uow.Save();
 
                         return RedirectToAction("ListaAlumnos");
                     }
@@ -320,7 +301,7 @@ namespace control_notas_cit.Controllers
                 return RedirectToAction("ListaAlumnos");
             }
 
-            var alumno = repoAlumnos.SelectById(id);
+            var alumno = _uow.RepositorioAlumnos.SelectById(id);
 
             if (alumno == null)
             {
@@ -348,7 +329,7 @@ namespace control_notas_cit.Controllers
         {
             if (ModelState.IsValid)
             {
-                Alumno alumno = repoAlumnos.SelectById(model.Id);
+                Alumno alumno = _uow.RepositorioAlumnos.SelectById(model.Id);
 
                 if (alumno == null)
                 {
@@ -362,8 +343,8 @@ namespace control_notas_cit.Controllers
                 alumno.Telefono = model.Telefono;
                 alumno.Email = model.Email;
 
-                repoAlumnos.Update(alumno);
-                repoAlumnos.Save();
+                _uow.RepositorioAlumnos.Update(alumno);
+                _uow.Save();
 
                 return RedirectToAction("ListaAlumnos");
             }
@@ -381,8 +362,8 @@ namespace control_notas_cit.Controllers
                 return RedirectToAction("ListaAlumnos");
             }
 
-            repoAlumnos.Delete(id);
-            repoAlumnos.Save();
+            _uow.RepositorioAlumnos.Delete(id);
+            _uow.Save();
 
             return RedirectToAction("ListaAlumnos");
         }
@@ -470,15 +451,15 @@ namespace control_notas_cit.Controllers
 
                 if (model.Id == 0)
                 {
-                    repoMinutas.Insert(minuta);
-                    repoMinutas.Save();
+                    _uow.RepositorioMinutas.Insert(minuta);
+                    _uow.Save();
                 }
                 else
                 {
                     minuta.MinutaID = model.Id;
 
-                    repoMinutas.Update(minuta);
-                    repoMinutas.Save();
+                    _uow.RepositorioMinutas.Update(minuta);
+                    _uow.Save();
                 }
 
                 return RedirectToAction("Index");
@@ -549,10 +530,10 @@ namespace control_notas_cit.Controllers
                         asistencia.Asistio = true;
                     }
 
-                    repoAsistencias.Insert(asistencia);
+                    _uow.RepositorioAsistencias.Insert(asistencia);
                 }
 
-                repoAsistencias.Save();
+                _uow.Save();
 
                 return RedirectToAction("Index");
             }
@@ -571,7 +552,7 @@ namespace control_notas_cit.Controllers
         private ApplicationUser GetCurrentUser()
         {
             // Tira una excepcion cuando el explorador ya tiene una sesion iniciada, debido a que al ejecutar el Seed, el id es totalmente distinto
-            return repoUsers.SelectAll().Where(u => u.Id == User.Identity.GetUserId()).SingleOrDefault();
+            return _uow.RepositorioUsuarios.SelectAll().Where(u => u.Id == User.Identity.GetUserId()).SingleOrDefault();
         }
 
         // Obtiene la celula

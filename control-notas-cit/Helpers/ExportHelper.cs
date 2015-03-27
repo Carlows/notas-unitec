@@ -61,11 +61,11 @@ namespace control_notas_cit.Helpers
                 dr[2] = alumno.Cedula;
                 dr[3] = alumno.Proyecto;
 
-                int index = 4;
+                int columna = 4;
                 foreach(Asistencia asistencia in alumno.Asistencias)
                 {
-                    dr[index] = (bool)asistencia.Asistio ? "asistio" : "---";
-                    index++;
+                    dr[columna] = (bool)asistencia.Asistio ? "asistio" : "---";
+                    columna++;
                 }
 
                 dt.Rows.Add(dr);
